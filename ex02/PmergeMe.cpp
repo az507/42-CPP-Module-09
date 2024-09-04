@@ -106,11 +106,6 @@ void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterato
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >	tmp;
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	it1, it2;
 
-//	std::cout << "in merge, mid is pointing to: " << *(mid->first) << std::endl;
-//	std::cout << "before merge	:";
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = low; it != high; ++it)
-//		std::cout << *(it->first) << ' ';
-//	std::cout << std::endl;
 	it1 = low;
 	it2 = mid;
 	diff1 = std::distance(low, mid);
@@ -118,16 +113,13 @@ void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterato
 	dist = diff1 + diff2;
 	while (diff1 > 0 && diff2 > 0)
 	{
-	//	std::cout << "*(it1->first) = " << *(it1->first) << ", *(it2->first) = " << *(it2->first) << std::endl;
 		if (*(it1->first) < *(it2->first))
 		{
-		//	std::cout << "\t-----A-----\n";
 			tmp.splice(tmp.end(), pairs_list, it1++);
 			--diff1;
 		}
 		else
 		{
-			//std::cout << "\t-----B-----\n";
 			tmp.splice(tmp.end(), pairs_list, it2++);
 			--diff2;
 		}
@@ -140,10 +132,6 @@ void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterato
 	low = mid = high;
 	std::advance(low, -dist);
 	std::advance(mid, -(dist >> 1));
-//	std::cout << "after merge	:";
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = low; it != high; ++it)
-//		std::cout << *(it->first) << ' ';
-//	std::cout << std::endl;
 }
 
 void	merge_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list,
@@ -153,17 +141,11 @@ void	merge_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::it
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	mid;
 	std::ptrdiff_t										dist;
 
-//	std::cout << "in here\n";
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator tmp = pairs_list.begin(); tmp != pairs_list.end(); ++tmp)
-//		std::cout << *(tmp->first) << ' ';
-//	std::cout << "\n\n";
 	dist = std::distance(low, high);
 	if (dist > 1)
 	{
 		mid = low;
 		std::advance(mid, dist >> 1);
-//		std::cout << "low is pointing to: " << *(low->first) << std::endl;
-//		std::cout << "mid is pointing to: " << *(mid->first) << std::endl;
 		merge_sort(pairs_list, low, mid);
 		merge_sort(pairs_list, mid, high);
 		merge(pairs_list, low, mid, high);
@@ -173,11 +155,13 @@ void	merge_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::it
 void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list,
 		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator& it, std::list<int>::iterator end)
 {
-	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	low = pairs_list.begin(), mid, high = pairs_list.end();
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	low = pairs_list.begin(), mid, high = it;
+	std::list<int>::iterator								ptr;
 	std::ptrdiff_t										diff1, diff2, dist;
 	int											key, cmp_value;
 
-	key = *(it->second);
+	ptr = it->second;
+	key = *ptr;
 	it->second = end;
 	//while (mid != it)
 	while (1)
@@ -186,12 +170,12 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 //		diff1 = std::distance(low, pairs_list.end());
 //		diff2 = std::distance(high, pairs_list.end())
 		diff1 = std::distance(low, it); 
-		if (high == pairs_list.end())
-			diff2 = std::numeric_limits<std::ptrdiff_t>::max();
-		else
-			diff2 = std::distance(high, it);
+		diff2 = std::distance(high, it);
 		if (diff1 < diff2)
+		{
+			std::cout << "\tOption C\n";
 			break ;
+		}
 		dist = diff1 - diff2;
 		mid = low;
 		std::advance(mid, dist >> 1);
@@ -201,8 +185,9 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 			//if (mid == pairs_list.begin() || (--std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator(mid))->first < key)
 			if (mid == pairs_list.begin() || *((--mid)->first) < key)
 			{
-				pairs_list.splice(++mid, pairs_list, it++);
-				--it;
+				//pairs_list.splice(++mid, pairs_list, it++);
+				std::cout << "\tOption A\n";
+				it = --pairs_list.insert(++mid, std::make_pair(ptr, end));
 				break ;
 			}
 			else
@@ -210,10 +195,12 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 		}
 		else
 		{
-			if (++mid != it && *(mid->first) > key)
+			//if (++mid != it && *(mid->first) > key)
+			if (*((++mid)->first) > key)
 			{
-				pairs_list.splice(mid, pairs_list, it++);
-				--it;
+				//pairs_list.splice(mid, pairs_list, it++);
+				std::cout << "\tOption B\n";
+				it = pairs_list.insert(mid, std::make_pair(ptr, end));
 				break ;
 			}
 			else
@@ -221,8 +208,6 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 		}
 		
 	}
-	std::cout << "dist from low to end: " << std::distance(low, pairs_list.end()) << std::endl;
-	std::cout << "dist from high to end: " << std::distance(high, pairs_list.end()) << std::endl;
 }
 
 void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list, std::list<int>& last_node)
@@ -258,7 +243,7 @@ void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>
 
 	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
 	{
-		std::cout << *(it->first) << ", ";
+		std::cout << "end: " << *(it->first) << ", ";
 		if (it->second != last_node.end())
 			std::cout << *(it->second) << std::endl;
 		else
