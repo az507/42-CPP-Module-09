@@ -17,7 +17,10 @@ void	PmergeMe::addNumber(int num)
 
 void	PmergeMe::printNumbers(void) const
 {
-	for (std::vector<int>::const_iterator it = m_vector.begin(); it != m_vector.end(); ++it)
+//	for (std::vector<int>::const_iterator it = m_vector.begin(); it != m_vector.end(); ++it)
+//		std::cout << *it << ' ';
+//	std::cout << '\n';
+	for (std::list<int>::const_iterator it = m_list.begin(); it != m_list.end(); ++it)
 		std::cout << *it << ' ';
 	std::cout << '\n';
 }
@@ -171,6 +174,7 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 //		diff2 = std::distance(high, pairs_list.end())
 		diff1 = std::distance(low, it); 
 		diff2 = std::distance(high, it);
+		std::cout << "diff1: " << diff1 << ", diff2: " << diff2 << std::endl;
 		if (diff1 < diff2)
 		{
 			std::cout << "\tOption C\n";
@@ -183,11 +187,20 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 		if (cmp_value > key)
 		{
 			//if (mid == pairs_list.begin() || (--std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator(mid))->first < key)
-			if (mid == pairs_list.begin() || *((--mid)->first) < key)
+			if (mid == pairs_list.begin())
+			{
+				++it;
+				pairs_list.insert(mid, std::make_pair(ptr, end));
+				//--it;
+				break ;
+			}
+			else if (*((--mid)->first) < key)
 			{
 				//pairs_list.splice(++mid, pairs_list, it++);
 				std::cout << "\tOption A\n";
-				it = --pairs_list.insert(++mid, std::make_pair(ptr, end));
+				++it;
+				pairs_list.insert(++mid, std::make_pair(ptr, end));
+				//--it;
 				break ;
 			}
 			else
@@ -196,11 +209,19 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 		else
 		{
 			//if (++mid != it && *(mid->first) > key)
-			if (*((++mid)->first) > key)
+			if (++mid == pairs_list.end())
+			{
+				pairs_list.insert(mid, std::make_pair(ptr, end));
+				it = mid;
+				break ;
+			}
+			else if(*(mid->first) > key)
 			{
 				//pairs_list.splice(mid, pairs_list, it++);
 				std::cout << "\tOption B\n";
-				it = pairs_list.insert(mid, std::make_pair(ptr, end));
+				++it;
+				pairs_list.insert(mid, std::make_pair(ptr, end));
+				//--it;
 				break ;
 			}
 			else
@@ -222,23 +243,42 @@ void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>
 
 	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
 	{
-		std::cout << "after removing start: " << *(it->first) << ", " << *(it->second) << std::endl;
+		std::cout << "after removing start: " << *(it->first) << ", ";
+		if (it->second == last_node.end())
+			std::cout << "Not found" << std::endl;
+		else
+			std::cout << *(it->second) << std::endl;
 	}
-	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
+	//for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin();
+	while (it != pairs_list.end())
 	{
-		std::cout << "Before insert: " << *(it->first) << std::endl;
+		std::cout << "Before insert: " << *(it->first) << ", ";
+		if (it->second == last_node.end())
+			std::cout << "Not found" << std::endl;
+		else
+			std::cout << *(it->second) << std::endl;
 		if (it->second != last_node.end())
 		{
 			std::cout << "\tGOING TO BIN INSERT" << std::endl;
 			binary_search_insert(pairs_list, it, last_node.end()); //binary search insert a node
+			continue ;
 		}
-		std::cout << "After insert: " << *(it->first) << std::endl;
+		std::cout << "After insert: " << *(it->first) << ", ";
+		if (it->second == last_node.end())
+			std::cout << "Not found" << std::endl;
+		else
+			std::cout << *(it->second) << std::endl;
+		++it;
 	}
 
 	if (!last_node.empty())
 	{
-		pairs_list.push_back(std::make_pair(last_node.begin(), last_node.end()));
-		binary_search_insert(pairs_list, --pairs_list.end(), last_node.end()); //binary search insert a node
+//		pairs_list.push_back(std::make_pair(last_node.end(), last_node.begin()));
+//		binary_search_insert(pairs_list, --pairs_list.end(), last_node.end()); //binary search insert a node
+//		pairs_list.pop_back();
+		pairs_list.back().second = last_node.begin();
+		binary_search_insert(pairs_list, --pairs_list.end(), last_node.end());
 	}
 
 	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
@@ -251,7 +291,7 @@ void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>
 	}
 }
 
-void	merge_insert_sort(std::list<int> list)
+void	merge_insert_sort(std::list<int>& list)
 {
 	std::cout << '\n';
 	std::list<int>										last_node, sorted_list, unsorted_list;
@@ -289,6 +329,22 @@ void	merge_insert_sort(std::list<int> list)
 		std::cout << '\n';
 	}
 	std::cout << std::endl;
+
+	std::list<int>	tmp_list;
+
+	while (pairs_list.size())
+	{
+		tmp_list.splice(tmp_list.end(), list, pairs_list.front().first);
+		pairs_list.pop_front();
+	}
+
+	std::cout << "After sorting:	";
+	for (std::list<int>::const_iterator it = tmp_list.begin(); it != tmp_list.end(); ++it)
+	{
+		std::cout << *it << ' ';
+	}
+	std::cout << std::endl;
+	list.swap(tmp_list);
 }
 
 void	PmergeMe::sort(void)
@@ -313,7 +369,11 @@ void	PmergeMe::sort(void)
 
 		time_taken[1] = static_cast<long double>((end_time - start_time) / (CLOCKS_PER_SEC * 1e-6));
 	}
-	std::cout << std::fixed << ">>> " << time_taken[0] << '\n';
+	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) == m_list.end())
+		std::cout << "list is sorted" << std::endl;
+	else
+		throw std::logic_error("unsorted list");
+	std::cout << std::fixed << ">>> " << time_taken[1] << " us" << std::endl;
 }
 
 PmergeMe::PmergeMe(void) {}
