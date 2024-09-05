@@ -8,7 +8,9 @@
 # include <algorithm>
 # include <utility>
 # include <functional>
+# include <limits>
 # include <ctime>
+# include <cmath>
 
 class	PmergeMe
 {
