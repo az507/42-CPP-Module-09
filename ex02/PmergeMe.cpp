@@ -55,11 +55,11 @@ void	PmergeMe::printTimeTaken(void) const
 void	PmergeMe::printDetailedTime(void) const
 {
 	std::cout << "For std::vector<int>" << std::endl;
-	std::cout << "Time taken for data management: " << std::setw(3) << vtime_taken[0] << " us" << std::endl;
-	std::cout << "Time taken for sorting part:    " << std::setw(3) << vtime_taken[1] << " us" << std::endl;
+	std::cout << "Time taken for data management: " << vtime_taken[0] << " us" << std::endl;
+	std::cout << "Time taken for sorting part:    " << vtime_taken[1] << " us" << std::endl;
 	std::cout << "For std::list<int>" << std::endl;
-	std::cout << "Time taken for data management: " << std::setw(3) << ltime_taken[0] << " us" << std::endl;
-	std::cout << "Time taken for sorting part:    " << std::setw(3) << ltime_taken[1] << " us" << std::endl;
+	std::cout << "Time taken for data management: " << ltime_taken[0] << " us" << std::endl;
+	std::cout << "Time taken for sorting part:    " << ltime_taken[1] << " us" << std::endl;
 }
 
 void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list,
@@ -368,11 +368,16 @@ void	merge_insert_sort(std::vector<int>& vector, long double *vtime_taken)
 
 void	PmergeMe::sort(void)
 {
-	if (m_vector.size() > 1)
+	size_t	old_vsize = m_vector.size(), old_lsize = m_list.size();
+
+	if (old_vsize > 1)
 		merge_insert_sort(m_vector, vtime_taken);
 
-	if (m_list.size() > 1)
+	if (old_lsize > 1)
 		merge_insert_sort(m_list, ltime_taken);
+
+	if (old_vsize != m_vector.size() || old_lsize != m_list.size())
+		throw std::logic_error("missing elements in container after sorting");
 }
 
 void	PmergeMe::checkSorted(void) const

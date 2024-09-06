@@ -34,12 +34,12 @@ int	main(int argc, char *argv[])
 		return (std::cerr << "Error: " << e.what() << '\n', 1);
 	}
 
-	std::cout << "Before: ";
+	std::cout << "Before:	";
 	instance.printNumbers();
 
 	instance.sort();
 
-	std::cout << "After:  ";
+	std::cout << "After:	";
 	instance.printNumbers();
 	instance.printTimeTaken();
 	//instance.printDetailedTime();
