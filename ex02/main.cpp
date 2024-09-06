@@ -8,7 +8,7 @@ T	str_to_nbr(const U *s, std::stringstream &ss)
 
 	ss.clear();
 	ss.str(s);
-	if (!(ss >> num))
+	if (!(ss >> num) || ss.peek() != std::char_traits<char>::eof())
 		throw std::invalid_argument("converting str to nbr");
 	return (num);
 }
@@ -37,7 +37,12 @@ int	main(int argc, char *argv[])
 	std::cout << "Before: ";
 	instance.printNumbers();
 
-	std::cout << "After: ";
 	instance.sort();
+
+	std::cout << "After:  ";
 	instance.printNumbers();
+	instance.printTimeTaken();
+	instance.printDetailedTime();
+
+	instance.checkSorted();
 }

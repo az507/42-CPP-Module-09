@@ -15,89 +15,51 @@ void	PmergeMe::addNumber(int num)
 	m_list.push_back(num);
 }
 
+template<typename T>
+int	getDigitsNbr(T num)
+{
+	int	digits = 0;
+
+	if (num <= 0) { num *= -1; digits++; }
+	while (num > 0)	{ num /= 10; digits++; }
+
+	return (digits);
+}
+
+double	timediff_ms(const struct timespec& start, const struct timespec& end)
+{
+	return (end.tv_sec - start.tv_sec) * 1e6 + (double)(end.tv_nsec - start.tv_nsec) / 1e3;
+}
+
 void	PmergeMe::printNumbers(void) const
 {
+	int	digitsNbr = getDigitsNbr(*std::max_element(m_vector.begin(), m_vector.end()));
+
 	for (std::vector<int>::const_iterator it = m_vector.begin(); it != m_vector.end(); ++it)
-		std::cout << *it << ' ';
+		std::cout << std::setw(digitsNbr) << *it << ' ';
 	std::cout << '\n';
-	for (std::list<int>::const_iterator it = m_list.begin(); it != m_list.end(); ++it)
-		std::cout << *it << ' ';
-	std::cout << '\n';
+	/*for (std::list<int>::const_iterator it = m_list.begin(); it != m_list.end(); ++it)
+		std::cout << std::setw(digitsNbr) << *it << ' ';
+	std::cout << '\n';*/
 }
 
-void	merge(std::vector<int>::iterator low, std::vector<int>::iterator mid, std::vector<int>::iterator high)
+void	PmergeMe::printTimeTaken(void) const
 {
-	std::vector<int>::iterator	it1 = low, it2 = mid;
-	std::vector<int>		tmp;
+	std::cout << "Time to process a range of " << std::setw(3) << m_vector.size() << " elements with std::vector<int> : ";
+	std::cout << std::fixed << vtime_taken[0] + vtime_taken[1] << " us" << std::endl;
 
-	while (it1 < mid && it2 < high)
-	{
-		if (*it1 < *it2)
-			tmp.push_back(*it1++);
-		else
-			tmp.push_back(*it2++);
-	}
-	for ( ; it1 < mid; ++it1)
-		tmp.push_back(*it1);
-	for ( ; it2 < high; ++it2)
-		tmp.push_back(*it2);
-	std::copy(tmp.begin(), tmp.end(), low);
+	std::cout << "Time to process a range of " << std::setw(3) << m_list.size() << " elements with std::list<int>   : ";
+	std::cout << std::fixed << ltime_taken[0] + ltime_taken[1] << " us" << std::endl;
 }
 
-void	binaryInsertSort(std::vector<int>::iterator low, std::vector<int>::iterator high)
+void	PmergeMe::printDetailedTime(void) const
 {
-	std::vector<int>::iterator	left, mid, right;
-	int				key;
-
-	for (std::vector<int>::iterator it = low + 1; it != high; ++it)
-	{
-		key = *it;
-		left = low;
-		right = it - 1;
-		while (left <= right)
-		{
-			mid = left + ((right - left) >> 1);
-			if (*mid > key)
-			{
-				if (mid == low || *(mid - 1) < key)
-				{
-					std::copy_backward(mid, it, it + 1);
-					*mid = key;
-					break ;
-				}
-				else
-					right = mid - 1;
-			}
-			else if (*mid < key)
-			{
-				if (mid + 1 != it && *(mid + 1) > key)
-				{
-					std::copy_backward(mid + 1, it, it + 1);
-					*(mid + 1) = key;
-					break ;
-				}
-				else
-					left = mid + 1;
-			}
-		}
-	}
-}
-
-void	mergeSort(std::vector<int>::iterator low, std::vector<int>::iterator high)
-{
-	std::vector<int>::iterator	mid;
-	std::ptrdiff_t			diff;
-
-	diff = high - low;
-	if (diff > 30)
-	{
-		mid = low + ((high - low) >> 1);
-		mergeSort(low, mid);
-		mergeSort(mid, high);
-		merge(low, mid, high);
-	}
-	else if (diff > 1)
-		binaryInsertSort(low, high);
+	std::cout << "For std::vector<int>" << std::endl;
+	std::cout << "Time taken for data management: " << std::setw(3) << vtime_taken[0] << " us" << std::endl;
+	std::cout << "Time taken for sorting part:    " << std::setw(3) << vtime_taken[1] << " us" << std::endl;
+	std::cout << "For std::list<int>" << std::endl;
+	std::cout << "Time taken for data management: " << std::setw(3) << ltime_taken[0] << " us" << std::endl;
+	std::cout << "Time taken for sorting part:    " << std::setw(3) << ltime_taken[1] << " us" << std::endl;
 }
 
 void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list,
@@ -105,8 +67,8 @@ void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterato
 		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator& mid,
 		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator high)
 {
-	std::ptrdiff_t	diff1, diff2, dist;
-	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >	tmp;
+	std::ptrdiff_t										diff1, diff2, dist;
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >		tmp;
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	it1, it2;
 
 	it1 = low;
@@ -177,7 +139,6 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 		std::advance(mid, dist >> 1);
 		if (*(mid->first) > key)
 		{
-			// duplicated code here 
 			if (mid == pairs_list.begin())
 			{
 				++it;
@@ -197,7 +158,6 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 		{
 			if (++mid == pairs_list.end())
 			{
-				// maybe can use push_back here?
 				pairs_list.insert(mid, std::make_pair(ptr, end));
 				it = mid;
 				break ;
@@ -214,15 +174,17 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 	}
 }
 
-void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list, std::list<int>& last_node)
+void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list, std::list<int>& last_node, long double *ltime_taken)
 {
+	struct timespec										tp[2];
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	it = pairs_list.begin();
 
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	while (it != pairs_list.end())
 	{
 		if (it->second != last_node.end())
 		{
-			binary_search_insert(pairs_list, it, last_node.end()); //binary search insert a node
+			binary_search_insert(pairs_list, it, last_node.end());
 			continue ;
 		}
 		++it;
@@ -232,15 +194,17 @@ void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>
 	{
 		pairs_list.back().second = last_node.begin();
 		binary_search_insert(pairs_list, --pairs_list.end(), last_node.end());
-	}
+	}										clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[1] += timediff_ms(tp[0], tp[1]);
 }
 
-void	merge_insert_sort(std::list<int>& list)
+void	merge_insert_sort(std::list<int>& list, long double *ltime_taken)
 {
+	struct timespec										tp[2];
 	std::list<int>										last_node, tmp_list;
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >		pairs_list;
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	it1, it2;
 
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	if (list.size() % 2 != 0)
 		last_node.splice(last_node.begin(), list, --list.end());
 
@@ -250,22 +214,26 @@ void	merge_insert_sort(std::list<int>& list)
 	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator tmp = pairs_list.begin(); tmp != pairs_list.end(); ++tmp)
 		if (*(tmp->first) < *(tmp->second))
 			std::iter_swap(tmp->first, tmp->second);
+											clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[0] = timediff_ms(tp[0], tp[1]);
 
 	it1 = pairs_list.begin();
-	it2 = pairs_list.end();
-	merge_sort(pairs_list, it1, it2);
+	it2 = pairs_list.end();								clock_gettime(CLOCK_REALTIME, &tp[0]);
 
+	merge_sort(pairs_list, it1, it2);						clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[1] = timediff_ms(tp[0], tp[1]);
+	
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	pairs_list.push_front(std::make_pair(pairs_list.front().second, last_node.end()));
 	(++pairs_list.begin())->second = last_node.end();
+											clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[0] += timediff_ms(tp[0], tp[1]);
 
-	insertion_sort(pairs_list, last_node);
-
+	insertion_sort(pairs_list, last_node, ltime_taken);
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	while (pairs_list.size())
 	{
 		tmp_list.splice(tmp_list.end(), list, pairs_list.front().first);
 		pairs_list.pop_front();
 	}
-	list.swap(tmp_list);
+	list.swap(tmp_list);								clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[0] += timediff_ms(tp[0], tp[1]);
 }
 
 void	merge(std::vector<std::pair<int, float> >::iterator low, std::vector<std::pair<int, float> >::iterator mid, std::vector<std::pair<int, float> >::iterator high)
@@ -302,29 +270,24 @@ void	merge_sort(std::vector<std::pair<int, float> >::iterator low, std::vector<s
 
 void	binary_search_insert(std::vector<std::pair<int, float> >& p_vector, std::vector<std::pair<int, float> >::iterator& it)
 {
-	std::vector<std::pair<int, float> >::iterator	low = p_vector.begin(), mid, high = it - 1;
+	std::vector<std::pair<int, float> >::iterator	low = p_vector.begin(), mid, high = it;
 	std::ptrdiff_t					dist = std::distance(p_vector.begin(), it);
 	int						key = it->second;
 
 	it->second = std::numeric_limits<float>::max();
 	while (low <= high)
 	{
-		////std::cout << "low - high: " << low - high << std::endl;
 		mid = low + ((high - low) >> 1);
 		if (mid->first > key)
 		{
 			if (mid == p_vector.begin())
 			{
-				//std::cout << "Option A" << std::endl;
-				//std::copy_backward(mid, it, it + 1);
 				p_vector.insert(p_vector.begin(), std::make_pair(key, std::numeric_limits<float>::max()));
 				it = p_vector.begin() + dist;
 				break ;
 			}
 			else if ((--mid)->first < key)
 			{
-				//std::cout << "Option B" << std::endl;
-				//std::copy_backward(mid, it, it + 1);
 				p_vector.insert(mid + 1, std::make_pair(key, std::numeric_limits<float>::max()));
 				it = p_vector.begin() + dist;
 				break ;
@@ -336,15 +299,12 @@ void	binary_search_insert(std::vector<std::pair<int, float> >& p_vector, std::ve
 		{
 			if (++mid == p_vector.end())
 			{
-				//std::cout << "Option C" << std::endl;
 				p_vector.push_back(std::make_pair(key, std::numeric_limits<float>::max()));
 				it = p_vector.begin() + dist;
 				break ;
 			}
 			else if (mid->first > key)
 			{
-				//std::cout << "Option D" << std::endl;
-				//std::copy_backward(mid, it, it + 1);
 				p_vector.insert(mid, std::make_pair(key, std::numeric_limits<float>::max()));
 				it = p_vector.begin() + dist;
 				break ;
@@ -355,37 +315,15 @@ void	binary_search_insert(std::vector<std::pair<int, float> >& p_vector, std::ve
 	}
 }
 
-void	insertion_sort(std::vector<std::pair<int, float> >& p_vector, float last_elem)
+void	insertion_sort(std::vector<std::pair<int, float> >& p_vector, float last_elem, long double *vtime_taken)
 {
+	struct timespec					tp[2];
 	std::vector<std::pair<int, float> >::iterator	it = p_vector.begin() + 1; 
-	
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	while (it != p_vector.end())
 	{
-//		//std::cout << "v insert before, it->first: " << it->first << " ,";
-//		if (it->second != std::numeric_limits<float>::max())
-//			//std::cout << it->second << std::endl;
-//		else
-//			//std::cout << "Not found" << std::endl;
 		if (it->second != std::numeric_limits<float>::max())
-		{
 			binary_search_insert(p_vector, it);
-			//std::cout << "After binary search insert" << std::endl;
-			for (std::vector<std::pair<int, float> >::const_iterator it = p_vector.begin(); it != p_vector.end(); ++it)
-			{
-				//std::cout << it->first << ", ";
-				//if (it->second == std::numeric_limits<float>::max())
-					//std::cout << "Not found" << std::endl;
-				//else
-					//std::cout << it->second << std::endl;
-			}
-			//std::cout << "\n";
-		}
-
-//		//std::cout << "v insert after, it->first: " << it->first << ", ";
-//		if (it->second != std::numeric_limits<float>::max())
-//			//std::cout << it->second << std::endl;
-//		else
-//			//std::cout << "Not found" << std::endl;
 		++it;
 	}
 	
@@ -393,15 +331,16 @@ void	insertion_sort(std::vector<std::pair<int, float> >& p_vector, float last_el
 	{
 		p_vector.back().second = last_elem;
 		binary_search_insert(p_vector, --p_vector.end());
-	}
+	}										clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[1] += timediff_ms(tp[0], tp[1]);
 }
 
-void	merge_insert_sort(std::vector<int>& vector)
+void	merge_insert_sort(std::vector<int>& vector, long double *vtime_taken)
 {
+	struct timespec				tp[2];
 	size_t					j, v_size = vector.size() >> 1;
 	float					last_elem = std::numeric_limits<float>::max();
 	std::vector<std::pair<int, float> >	pairs_vector(v_size);
-
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	for (size_t i = 0; i < v_size; ++i)
 	{
 		j = i << 1;
@@ -412,84 +351,36 @@ void	merge_insert_sort(std::vector<int>& vector)
 	}
 	if (vector.size() % 2 != 0)
 		last_elem = vector.back();
-//	if (vector.size() % 2 != 0)
-//		pairs_vector.push_back(std::make_pair(std::numeric_limits<float>::max(), vector.back()));
-	vector.clear();
-
-	//std::cout << "initial vector: " << std::endl;
-	for (std::vector<std::pair<int, float> >::const_iterator it = pairs_vector.begin(); it != pairs_vector.end(); ++it)
-	{
-		//std::cout << it->first << ", ";
-		//if (it->second == std::numeric_limits<float>::max())
-			//std::cout << "Not found" << std::endl;
-		//else
-			//std::cout << it->second << std::endl;
-	}
-
+	vector.clear();									clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[0] = timediff_ms(tp[0], tp[1]);
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	merge_sort(pairs_vector.begin(), pairs_vector.end());
-
+											clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[1] = timediff_ms(tp[0], tp[1]);
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	pairs_vector.insert(pairs_vector.begin(), std::make_pair(pairs_vector.front().second, std::numeric_limits<float>::max()));
 	(pairs_vector.begin() + 1)->second = std::numeric_limits<float>::max();
-
-	//std::cout << "vector after merge sort: " << std::endl;
-	for (std::vector<std::pair<int, float> >::const_iterator it = pairs_vector.begin(); it != pairs_vector.end(); ++it)
-	{
-		//std::cout << it->first << ", ";
-		//if (it->second == std::numeric_limits<float>::max())
-			//std::cout << "Not found" << std::endl;
-		//else
-			//std::cout << it->second << std::endl;
-	}
-
-	insertion_sort(pairs_vector, last_elem);
-
-	//std::cout << "vector after insertion sort: " << std::endl;
-	for (std::vector<std::pair<int, float> >::const_iterator it = pairs_vector.begin(); it != pairs_vector.end(); ++it)
-	{
-		//std::cout << it->first << ", ";
-		//if (it->second == std::numeric_limits<float>::max())
-			//std::cout << "Not found" << std::endl;
-		//else
-			//std::cout << it->second << std::endl;
-	}
-
+											clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[0] += timediff_ms(tp[0], tp[1]);
+	insertion_sort(pairs_vector, last_elem, vtime_taken);
+											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	for (std::vector<std::pair<int, float> >::iterator it = pairs_vector.begin(); it != pairs_vector.end(); ++it)
 		vector.push_back(static_cast<int>(it->first));
+											clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[0] += timediff_ms(tp[0], tp[1]);
 }
 
 void	PmergeMe::sort(void)
 {
-	clock_t	start_time, end_time;
-
 	if (m_vector.size() > 1)
-	{
-		start_time = clock();
-		//mergeSort(m_vector.begin(), m_vector.end());
-		merge_insert_sort(m_vector);
-		end_time = clock();
-
-		time_taken[0] = static_cast<long double>((end_time - start_time) / (CLOCKS_PER_SEC * 1e-6));
-	}
+		merge_insert_sort(m_vector, vtime_taken);
 
 	if (m_list.size() > 1)
-	{
-		start_time = clock();
-		merge_insert_sort(m_list);
-		//mergeSort(m_list, m_list.begin(), m_list.end());
-		end_time = clock();
+		merge_insert_sort(m_list, ltime_taken);
+}
 
-		time_taken[1] = static_cast<long double>((end_time - start_time) / (CLOCKS_PER_SEC * 1e-6));
-	}
-
-	if (std::adjacent_find(m_vector.begin(), m_vector.end(), std::greater<int>()) == m_vector.end())
-		std::cout << "vector is sorted" << std::endl;
-	else
+void	PmergeMe::checkSorted(void) const
+{
+	if (std::adjacent_find(m_vector.begin(), m_vector.end(), std::greater<int>()) != m_vector.end())
 		throw std::logic_error("unsorted vector");
-	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) == m_list.end())
-		std::cout << "list is sorted" << std::endl;
-	else
+	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) != m_list.end())
 		throw std::logic_error("unsorted list");
-	//std::cout << std::fixed << ">>> " << time_taken[1] << " us" << std::endl;
 }
 
 PmergeMe::PmergeMe(void) {}

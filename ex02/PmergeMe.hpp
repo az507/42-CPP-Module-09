@@ -18,7 +18,10 @@ class	PmergeMe
 		static PmergeMe	&getInstance(void);
 		void		addNumber(int);
 		void		printNumbers(void) const;
+		void		printTimeTaken(void) const;
+		void		printDetailedTime(void) const;
 		void		sort(void);
+		void		checkSorted(void) const;
 
 	private:
 		PmergeMe(void);
@@ -28,7 +31,8 @@ class	PmergeMe
 
 		std::vector<int>	m_vector;
 		std::list<int>		m_list;
-		long double		time_taken[2];
+		long double		vtime_taken[2]; // [0]: data management, [1]: sorting part
+		long double		ltime_taken[2];
 };
 
 #endif
