@@ -14,29 +14,28 @@ void	RPN::push_to_stack(int num)
 
 void	RPN::perform_op(char op_type)
 {
-	int	num1;
-	int	num2;
+	int	num1, num2;
 
 	if (m_stack.size() < 2)
 		throw std::runtime_error("Not enough numbers to perform op.");
+
 	num1 = m_stack.top();
 	m_stack.pop();
+
 	num2 = m_stack.top();
 	m_stack.pop();
+
 	switch (op_type)
 	{
 		case '+':
-			num2 += num1;
-			break ;
+			num2 += num1; break ;
 		case '-':
-			num2 -= num1;
-			break ;
+			num2 -= num1; break ;
 		case '/':
-			num2 /= num1;
-			break ;
+			if (!num1) throw std::runtime_error("division by zero");
+			num2 /= num1; break ;
 		case '*':
-			num2 *= num1;
-			break ;
+			num2 *= num1; break ;
 		default:
 			throw std::invalid_argument("unknown op type.");
 	}
@@ -45,6 +44,8 @@ void	RPN::perform_op(char op_type)
 
 int	RPN::peek_top_stack(void) const
 {
+	if (m_stack.empty())
+		throw std::runtime_error("Empty stack");
 	return m_stack.top();
 }
 

@@ -1,9 +1,9 @@
-NAME	= rpn
+NAME	= RPN
 SRCS	= main.cpp RPN.cpp
 OBJS	= $(SRCS:.cpp=.o)
 DEP	= $(OBJS:.o=.d)
 CC	= c++
-CPPFLAGS= -Wall -Werror -Wextra -std=c++98 -MMD -MP#-g
+CPPFLAGS= -Wall -Werror -Wextra -std=c++98 -MMD -MP -g
 RM	= rm -f
 
 all:	$(NAME)

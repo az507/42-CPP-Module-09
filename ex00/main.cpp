@@ -10,11 +10,9 @@ const char	*nullToEmpty(const char *s)
 	return (s ? s : "");
 }
 
-int	main(int argc, char *argv[])
+int	main(int, char *argv[])
 {
-	(void)argc;
-	try
-	{
+	try {
 		BitcoinExchange		btc("data.csv");
 		std::ifstream		input_databse(nullToEmpty(argv[1]));
 		std::string::size_type	offset;
@@ -31,28 +29,25 @@ int	main(int argc, char *argv[])
 		{
 			offset = buffer.find('|');
 			date = buffer.substr(0, offset - 1);
-			try
-			{
+			try {
 				if (!btc.validateDate(date))
 					continue ;
 				else if (offset == std::string::npos)
 					ft_error("no pipe symbol seperator.");
 				else if (!btc.extractValue(buffer.substr(offset + 1), input_value))
 					continue ;
-				else
-				{
+				else {
 					total_value = btc.findDatabseEntry(date)->second * input_value;
+					//std::cout << std::fixed << std::setprecision(2);
 					std::cout << date << " => " << input_value << " = " << total_value << '\n';
 				}
 			}
-			catch (const std::exception &e)
-			{
+			catch (const std::exception &e) {
 				ft_error(e.what());
 			}
 		}
 	}
-	catch (const std::exception &e)
-	{
+	catch (const std::exception &e) {
 		ft_error(e.what());
 		return (1);
 	}

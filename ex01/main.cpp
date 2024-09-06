@@ -28,8 +28,7 @@ int	main(int argc, char *argv[])
 		return (std::cerr << "Error\n", 1);
 
 	rpn = RPN::getInstance();
-	try
-	{
+	try {
 		while (*argv[1])
 		{
 			if (isdigit(*argv[1]))
@@ -42,8 +41,7 @@ int	main(int argc, char *argv[])
 		}
 		std::cout << rpn->peek_top_stack() << '\n';
 	}
-	catch (const std::exception &e)
-	{
+	catch (const std::exception &e) {
 		return (std::cerr << "Error: " << e.what() << '\n', 1);
 	}
 }
