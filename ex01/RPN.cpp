@@ -44,8 +44,8 @@ void	RPN::perform_op(char op_type)
 
 int	RPN::peek_top_stack(void) const
 {
-	if (m_stack.empty())
-		throw std::runtime_error("Empty stack");
+	if (m_stack.size != 1)
+		throw std::runtime_error("There should only be 1 element in the stack at end of expression");
 	return m_stack.top();
 }
 

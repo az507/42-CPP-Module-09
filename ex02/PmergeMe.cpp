@@ -118,15 +118,13 @@ void	merge_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::it
 }
 
 void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list,
-		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator& it, std::list<int>::iterator end)
+		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator& it, std::list<int>::iterator end, int key)
 {
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	low = pairs_list.begin(), mid, high = it;
 	std::list<int>::iterator								ptr;
 	std::ptrdiff_t										diff1, diff2, dist;
-	int											key;
 
 	ptr = it->second;
-	key = *ptr;
 	it->second = end;
 	while (1)
 	{
@@ -174,33 +172,36 @@ void	binary_search_insert(std::list<std::pair<std::list<int>::iterator, std::lis
 	}
 }
 
-void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list, std::list<int>& last_node, long double *ltime_taken)
+void	insertion_sort(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list, std::list<int>& last_node, long double *ltime_taken,
+		const std::vector<int>& insert_elems)
 {
 	struct timespec										tp[2];
-	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	it = pairs_list.begin();
-
-											clock_gettime(CLOCK_REALTIME, &tp[0]);
-	while (it != pairs_list.end())
+	
+	clock_gettime(CLOCK_REALTIME, &tp[0]);
+	for (std::vector<int>::const_iterator tmp = insert_elems.begin(); tmp != insert_elems.end(); ++tmp)
 	{
-		if (it->second != last_node.end())
+		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
 		{
-			binary_search_insert(pairs_list, it, last_node.end());
-			continue ;
+			if (it->second != last_node.end() && *(it->second) == *tmp)
+			{
+				binary_search_insert(pairs_list, it, last_node.end(), *tmp);
+				break ;
+			}
 		}
-		++it;
 	}
 
 	if (!last_node.empty())
 	{
 		pairs_list.back().second = last_node.begin();
-		binary_search_insert(pairs_list, --pairs_list.end(), last_node.end());
+		binary_search_insert(pairs_list, --pairs_list.end(), last_node.end(), last_node.front());
 	}										clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[1] += timediff_ms(tp[0], tp[1]);
 }
 
-void	merge_insert_sort(std::list<int>& list, long double *ltime_taken)
+void	merge_insert_sort(std::list<int>& list, long double *ltime_taken, const std::vector<int>& jacobsthalSequence)
 {
 	struct timespec										tp[2];
 	std::list<int>										last_node, tmp_list;
+	std::vector<int>									insert_elems;
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >		pairs_list;
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	it1, it2;
 
@@ -224,9 +225,26 @@ void	merge_insert_sort(std::list<int>& list, long double *ltime_taken)
 											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	pairs_list.push_front(std::make_pair(pairs_list.front().second, last_node.end()));
 	(++pairs_list.begin())->second = last_node.end();
+	int	idx;
+	for (std::vector<int>::const_iterator tmp = jacobsthalSequence.begin(); tmp != jacobsthalSequence.end(); ++tmp)
+	{
+		idx = 0;
+		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = pairs_list.begin(); it != pairs_list.end(); ++it)
+		{
+			if (it->second != last_node.end())
+			{
+				if (idx == *tmp - 2)
+				{
+					insert_elems.push_back(*(it->second));
+					break ;
+				}
+				++idx;
+			}
+		}
+	}
 											clock_gettime(CLOCK_REALTIME, &tp[1]); ltime_taken[0] += timediff_ms(tp[0], tp[1]);
 
-	insertion_sort(pairs_list, last_node, ltime_taken);
+	insertion_sort(pairs_list, last_node, ltime_taken, insert_elems);
 											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	while (pairs_list.size())
 	{
@@ -268,11 +286,10 @@ void	merge_sort(std::vector<std::pair<int, float> >::iterator low, std::vector<s
 	}
 }
 
-void	binary_search_insert(std::vector<std::pair<int, float> >& p_vector, std::vector<std::pair<int, float> >::iterator& it)
+void	binary_search_insert(std::vector<std::pair<int, float> >& p_vector, std::vector<std::pair<int, float> >::iterator& it, int key)
 {
 	std::vector<std::pair<int, float> >::iterator	low = p_vector.begin(), mid, high = it;
 	std::ptrdiff_t					dist = std::distance(p_vector.begin(), it);
-	int						key = it->second;
 
 	it->second = std::numeric_limits<float>::max();
 	while (low <= high)
@@ -315,30 +332,35 @@ void	binary_search_insert(std::vector<std::pair<int, float> >& p_vector, std::ve
 	}
 }
 
-void	insertion_sort(std::vector<std::pair<int, float> >& p_vector, float last_elem, long double *vtime_taken)
+void	insertion_sort(std::vector<std::pair<int, float> >& p_vector, float last_elem, long double *vtime_taken, const std::vector<int>& insert_elems)
 {
 	struct timespec					tp[2];
-	std::vector<std::pair<int, float> >::iterator	it = p_vector.begin() + 1; 
 											clock_gettime(CLOCK_REALTIME, &tp[0]);
-	while (it != p_vector.end())
+	for (std::vector<int>::const_iterator tmp = insert_elems.begin(); tmp != insert_elems.end(); ++tmp)
 	{
-		if (it->second != std::numeric_limits<float>::max())
-			binary_search_insert(p_vector, it);
-		++it;
+		for (std::vector<std::pair<int, float> >::iterator it = p_vector.begin(); it != p_vector.end(); ++it)
+		{
+			if (it->second == *tmp)
+			{
+				binary_search_insert(p_vector, it, *tmp);
+				break ;
+			}
+		}
 	}
 	
 	if (last_elem != std::numeric_limits<float>::max())
 	{
 		p_vector.back().second = last_elem;
-		binary_search_insert(p_vector, --p_vector.end());
+		binary_search_insert(p_vector, --p_vector.end(), last_elem);
 	}										clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[1] += timediff_ms(tp[0], tp[1]);
 }
 
-void	merge_insert_sort(std::vector<int>& vector, long double *vtime_taken)
+void	merge_insert_sort(std::vector<int>& vector, long double *vtime_taken, const std::vector<int>& jacobsthalSequence)
 {
 	struct timespec				tp[2];
 	size_t					j, v_size = vector.size() >> 1;
 	float					last_elem = std::numeric_limits<float>::max();
+	std::vector<int>			insert_elems;
 	std::vector<std::pair<int, float> >	pairs_vector(v_size);
 											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	for (size_t i = 0; i < v_size; ++i)
@@ -358,24 +380,72 @@ void	merge_insert_sort(std::vector<int>& vector, long double *vtime_taken)
 											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	pairs_vector.insert(pairs_vector.begin(), std::make_pair(pairs_vector.front().second, std::numeric_limits<float>::max()));
 	(pairs_vector.begin() + 1)->second = std::numeric_limits<float>::max();
+
+	int	idx;
+	for (std::vector<int>::const_iterator tmp = jacobsthalSequence.begin(); tmp != jacobsthalSequence.end(); ++tmp)
+	{
+		idx = 0;
+		for (std::vector<std::pair<int, float> >::iterator it = pairs_vector.begin(); it != pairs_vector.end(); ++it)
+		{
+			if (it->second != std::numeric_limits<float>::max())
+			{
+				if (idx == *tmp - 2)
+				{
+					insert_elems.push_back(it->second);
+					break ;
+				}
+				++idx;
+			}
+		}
+	}
+//	std::cout << "printing pend elems: ";
+//	for (std::vector<int>::const_iterator it = insert_elems.begin(); it != insert_elems.end(); ++it)
+//		std::cout << *it << ' ';
+//	std::cout << std::endl;
 											clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[0] += timediff_ms(tp[0], tp[1]);
-	insertion_sort(pairs_vector, last_elem, vtime_taken);
+	insertion_sort(pairs_vector, last_elem, vtime_taken, insert_elems);
 											clock_gettime(CLOCK_REALTIME, &tp[0]);
 	for (std::vector<std::pair<int, float> >::iterator it = pairs_vector.begin(); it != pairs_vector.end(); ++it)
 		vector.push_back(static_cast<int>(it->first));
 											clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[0] += timediff_ms(tp[0], tp[1]);
 }
 
+int	getJacobsthalNumber(int i)
+{
+	if (i <= 1)
+		return i;
+	return getJacobsthalNumber(i - 1) + 2 * getJacobsthalNumber(i - 2);
+}
+
+void	PmergeMe::generateJacobsthalSequence(void)
+{
+	int	max = m_vector.size() >> 1, n, prev = 1;
+
+	for (int i = 3; i < std::numeric_limits<int>::max(); ++i)
+	{
+		n = getJacobsthalNumber(i);
+		if (n <= max) {
+			for (int x = n; x > prev; --x)
+				jacobsthalSequence.push_back(x);
+		} else {
+			for (int x = max; x > prev; --x)
+				jacobsthalSequence.push_back(x);
+			break ;
+		}
+		prev = n;
+	}
+}
+
 void	PmergeMe::sort(void)
 {
 	size_t	old_vsize = m_vector.size(), old_lsize = m_list.size();
 
+	generateJacobsthalSequence();
 	if (old_vsize > 1)
-		merge_insert_sort(m_vector, vtime_taken);
-
+		merge_insert_sort(m_vector, vtime_taken, jacobsthalSequence);
 	if (old_lsize > 1)
-		merge_insert_sort(m_list, ltime_taken);
-
+		merge_insert_sort(m_list, ltime_taken, jacobsthalSequence);
+	jacobsthalSequence.clear();
 	if (old_vsize != m_vector.size() || old_lsize != m_list.size())
 		throw std::logic_error("missing elements in container after sorting");
 }
