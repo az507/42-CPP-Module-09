@@ -5,19 +5,15 @@ void	ft_error(const char *msg)
 	std::cerr << "Error: " << msg << '\n';
 }
 
-const char	*nullToEmpty(const char *s)
+int	main(int argc, char *argv[])
 {
-	return (s ? s : "");
-}
-
-int	main(int, char *argv[])
-{
+	if (argc == 1)
+		return 0;
 	try {
 		BitcoinExchange		btc("data.csv");
-		std::ifstream		input_databse(nullToEmpty(argv[1]));
+		std::ifstream		input_databse(argv[1]);
 		std::string::size_type	offset;
-		std::string		buffer;
-		std::string		date;
+		std::string		buffer, date;
 		double			input_value;
 		long double		total_value;
 
@@ -37,6 +33,7 @@ int	main(int, char *argv[])
 				else if (!btc.extractValue(buffer.substr(offset + 1), input_value))
 					continue ;
 				else {
+					//std::cout << "rate: " << btc.findDatabseEntry(date)->second << std::endl;
 					total_value = btc.findDatabseEntry(date)->second * input_value;
 					//std::cout << std::fixed << std::setprecision(2);
 					std::cout << date << " => " << input_value << " = " << total_value << '\n';

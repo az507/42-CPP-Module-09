@@ -42,7 +42,7 @@ int	main(int argc, char *argv[])
 	std::cout << "After:	";
 	instance.printNumbers();
 	instance.printTimeTaken();
-	instance.printDetailedTime();
+	//instance.printDetailedTime();
 
 	instance.checkSorted();
 }

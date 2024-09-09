@@ -16,5 +16,5 @@ fi
 
 for ((i = 0; i < $max_iterations; i++));
 do
-	./PmergeMe `shuf -i 1-$upper_limit | tr "\n" " "`
+	valgrind ./PmergeMe `shuf -i 1-$upper_limit | tr "\n" " "`
 done

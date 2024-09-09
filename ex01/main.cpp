@@ -24,8 +24,8 @@ int	main(int argc, char *argv[])
 	std::stringstream	ss;
 	std::string		buffer;
 
-	if (argc != 2)
-		return (std::cerr << "Error\n", 1);
+	if (argc == 1)
+		return 0;
 
 	rpn = RPN::getInstance();
 	try {
