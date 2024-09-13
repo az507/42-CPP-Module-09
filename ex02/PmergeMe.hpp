@@ -11,6 +11,7 @@
 # include <limits>
 # include <ctime>
 # include <cmath>
+# include <cassert>
 # include <unistd.h>
 
 class	PmergeMe
