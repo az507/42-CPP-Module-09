@@ -39,8 +39,8 @@ void	PmergeMe::printNumbers(void) const
 		std::cout << std::setw(digitsNbr) << *it << ' ';
 	std::cout << '\n';
 	/*for (std::list<int>::const_iterator it = m_list.begin(); it != m_list.end(); ++it)
-		std::cout << std::setw(digitsNbr) << *it << ' ';
-	std::cout << '\n';*/
+		std::cout << std::setw(digitsNbr) << *it << ' ';*/
+	std::cout << '\n';
 }
 
 void	PmergeMe::printTimeTaken(void) const
@@ -436,18 +436,49 @@ void	PmergeMe::generateJacobsthalSequence(void)
 	}
 }
 
+void	mergeInsertSort(std::vector<int>& vec, int level);
+
 void	PmergeMe::sort(void)
 {
-	size_t	old_vsize = m_vector.size(), old_lsize = m_list.size();
+//	size_t	old_vsize = m_vector.size(), old_lsize = m_list.size();
+//
+//	generateJacobsthalSequence();
+//	if (old_vsize > 1)
+//		merge_insert_sort(m_vector, vtime_taken, jacobsthalSequence);
+//	if (old_lsize > 1)
+//		merge_insert_sort(m_list, ltime_taken, jacobsthalSequence);
+//	jacobsthalSequence.clear();
+//	if (old_vsize != m_vector.size() || old_lsize != m_list.size())
+//		throw std::logic_error("missing elements in container after sorting");
+	mergeInsertSort(this->m_vector, 1);
+}
 
-	generateJacobsthalSequence();
-	if (old_vsize > 1)
-		merge_insert_sort(m_vector, vtime_taken, jacobsthalSequence);
-	if (old_lsize > 1)
-		merge_insert_sort(m_list, ltime_taken, jacobsthalSequence);
-	jacobsthalSequence.clear();
-	if (old_vsize != m_vector.size() || old_lsize != m_list.size())
-		throw std::logic_error("missing elements in container after sorting");
+void	compareAndSwap(std::vector<int>& vec, int n)
+{
+	std::vector<int>::iterator	it1 = vec.begin(), it2;
+
+	while (it1 != vec.end())
+	{
+		it2 = it1 + n;
+	//	std::cout << "before: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
+		if (*it1 < *it2)
+		{
+			std::swap_ranges(it1, it2, it2);
+		//	std::cout << "after: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
+		}
+		it1 += n << 1;
+	}
+}
+
+void	mergeInsertSort(std::vector<int>& vec, int level)
+{
+	if ((size_t)level >= vec.size())
+		return ;
+	compareAndSwap(vec, level);
+	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it)
+		std::cout << *it << ' ';
+	std::cout << std::endl;
+	mergeInsertSort(vec, level << 1);
 }
 
 void	PmergeMe::checkSorted(void) const

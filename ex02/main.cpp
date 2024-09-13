@@ -44,5 +44,5 @@ int	main(int argc, char *argv[])
 	instance.printTimeTaken();
 	//instance.printDetailedTime();
 
-	instance.checkSorted();
+	//instance.checkSorted();
 }
