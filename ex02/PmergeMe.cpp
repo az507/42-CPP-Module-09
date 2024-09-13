@@ -509,11 +509,9 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 		if (*(mid->first) > key)
 		{
 			if (*mid == p_vec.back()) {
-				//std::cout << "\tc" << std::endl;
 				p_vec.push_back(std::make_pair(it->second, dfl_value));
 				break ;
 			} else if (*((++mid)->first) < key) {
-				//std::cout << "\td" << std::endl;
 				p_vec.insert(mid, std::make_pair(it->second, dfl_value));
 				break ;
 			} else
@@ -522,11 +520,9 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 		else if (*(mid->first) < key)
 		{
 			if (mid == p_vec.begin()) {
-				//std::cout << "\ta" << std::endl;
 				p_vec.insert(p_vec.begin(), std::make_pair(it->second, dfl_value));
 				break ;
 			} else if (*((--mid)->first) > key) {
-				//std::cout << "\tb" << std::endl;
 				p_vec.insert(++mid, std::make_pair(it->second, dfl_value));
 				break ;
 			} else
@@ -540,37 +536,24 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 {
 	std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator > >::iterator	start_pt;
 	std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator > >		p_vec;
-	std::pair<std::vector<int>::iterator, std::vector<int>::iterator>				first_elem;
-	std::vector<int>										jacob, pend;
+	std::vector<int>										jacob, pend, tmp_vec;
 	int												length, count;
 
 	if ((size_t)level >= vec.size())
 		return (1);
 	compareAndSwap(vec, level);
-	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it)
-		std::cout << *it << ' ';
-	std::cout << std::endl;
 	length = mergeInsertSort(vec, level << 1);
 	for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); it += (level << 1))
 		p_vec.push_back(std::make_pair(it, it + level));
 	jacob = createJacobSeq(length);
-//	std::cout << "jacob: ";
-//	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
-//		std::cout << *it << ' ';
-//	std::cout << std::endl;
 
-	//first_elem used as reference point for std::find
-	first_elem = p_vec.back();
 	//insert b1 into back of main chain
 	p_vec.push_back(std::make_pair(p_vec.back().second, vec.end()));
-//	std::pair<std::vector<int>::iterator, std::vector<int>::iterator> ret = p_vec.at(p_vec.size() - 2);
-//	std::cout << "1) " << *(ret.first) << ", 2) " << *(ret.second) << std::endl;
-//	std::cout << "first num to insert: " << *(first_elem.second) << std::endl;
 	p_vec.at(p_vec.size() - 2).second = vec.end();
-	first_elem.second = vec.end();
 
 	if (!jacob.empty())
 	{
+		//place elems to be inserted into pend vector, which is determined by jacob seq
 		for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
 		{
 			count = 1;
@@ -584,42 +567,25 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 				}
 			}
 		}
-//		std::cout << "pend:	";
-//		for (std::vector<int>::const_iterator it = pend.begin(); it != pend.end(); ++it)
-//			std::cout << *it << ' ';
-//		std::cout << std::endl;
 		for (std::vector<int>::const_iterator it = pend.begin(); it != pend.end(); ++it)
 		{
-//			std::cout << "Before:" << std::endl;
-//			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
-//				std::cout << *(it->first) << ", " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << std::endl;
 			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::iterator tmp = p_vec.begin(); tmp != p_vec.end(); ++tmp)
 			{
 				if (tmp->second != vec.end() && *(tmp->second) == *it)
 				{
+					//place elems to be inserted into pend vector, which is determined by jacob seq
 					binarySearchInsert(p_vec, tmp + 1, p_vec.end(), tmp, vec.end());
 					break ;
 				}
 			}
 		}
-
 	}
-//	std::cout << "After:" << std::endl;
-//	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
-//		std::cout << *(it->first) << ", " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << std::endl;
-//	std::cout << "level: " << level << std::endl;
-//	std::cout << "length: " << length << std::endl;
-	std::vector<int>	tmp_vec;
 
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
 		tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
-//	std::cout << "Tmp vec:" << std::endl;
-//	for (std::vector<int>::const_iterator it = tmp_vec.begin(); it != tmp_vec.end(); ++it)
-//		std::cout << *it << ' ';
-//	std::cout << std::endl;
 	vec.swap(tmp_vec);
 	if (level == 1)
-	std::reverse(vec.begin(), vec.end());
+		std::reverse(vec.begin(), vec.end());
 	return (length << 1);
 }
 
