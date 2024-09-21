@@ -532,6 +532,8 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 			} else
 				high = mid;
 		}
+		else
+			break ;
 	}
 	std::find(p_vec.begin(), p_vec.end(), std::make_pair(v1, v2))->second = dfl_value;
 	//it->second = dfl_value;
@@ -546,6 +548,7 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	std::ptrdiff_t											dist = 0;
 	int												length, count;
 
+	//(void)dist;
 	std::cout << "level: " << level << std::endl;
 	//if (level >= (int)vec.size() || (int)vec.size() - level < level)
 	if (level >= (int)vec.size() || (vec.size() / level) <= 1) {
@@ -555,6 +558,7 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	//std::cout << "remainder: " << vec.size() % level << std::endl;
 	compareAndSwap(vec, level);
 	length = mergeInsertSort(vec, level << 1);
+	compareAndSwap(vec, level);
 	leftover = vec.end();
 	std::cout << "vec.size(): " << vec.size() << std::endl;
 	for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); ++it)
@@ -566,9 +570,10 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 		if (vec.end() - it < (level << 1)) {
 		//	p_vec.push_back(std::make_pair(it, --vec.end()));
 		//	leftover = it + level + 1;
+
 			leftover = it;
 			dist = vec.end() - it;
-			std::cout << "leftover: " << *leftover << std::endl;
+//			std::cout << "leftover: " << *leftover << std::endl;
 			break ;
 		}
 		//std::cout << "pushed, *it: " << *it << std::endl;
@@ -583,11 +588,11 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	}
 //	if (leftover != vec.end())
 //		std::cout << "leftover: " << *leftover << std::endl;
-	jacob = createJacobSeq(length);
-	std::cout << "jacob of length " << length << ": ";
-	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
-		std::cout << *it << ' ';
-	std::cout << std::endl;
+//	jacob = createJacobSeq(length);
+//	std::cout << "jacob of length " << length << ": ";
+//	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
+//		std::cout << *it << ' ';
+//	std::cout << std::endl;
 
 	std::cout << "Before appending b1 to a1" << std::endl;
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
@@ -596,13 +601,18 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	p_vec.push_back(std::make_pair(p_vec.back().second, vec.end()));
 	p_vec.at(p_vec.size() - 2).second = vec.end();
 
-//	int	x = 0;
-//	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
-//		if (it->second != vec.end()) {
-//			++x;
-//		}
-//	}
-//	std::cout << "\tx:	" << x << std::endl;
+	int	x = 0;
+	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
+		if (it->second != vec.end()) {
+			++x;
+		}
+	}
+	std::cout << "\tx:	" << x << std::endl;
+	jacob = createJacobSeq(x + 1);
+	std::cout << "jacob of length " << length << ": ";
+	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
+		std::cout << *it << ' ';
+	std::cout << std::endl;
 
 	std::cout << "After appending b1 to a1" << std::endl;
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
@@ -637,6 +647,7 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 		std::cout << "a: " << *(it->first) << ", b: " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << std::endl;
 	// remainder should be 1 group by itself, so only need 1 insertion for 1 group (remainder amt) of elems (which shld be less than length)
 
+	// we want to use binary search insert on the leftover that did not have a pair
 	if (leftover != vec.end() && level != 1) {
 		std::cout << "inserting leftover elems" << std::endl;
 		p_vec.push_back(std::make_pair(vec.end(), leftover));
@@ -652,18 +663,34 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
 	{
 		//std::cout << "level during insert to tmp: " << level << std::endl;
-		if (vec.end() - it->first >= (level << 1)) {
+		if (vec.end() - it->first >= level) {
 			tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
 			std::cout << "Option A" << std::endl;
 		} else {
 			tmp_vec.insert(tmp_vec.end(), it->first, vec.end());
 			std::cout << "Option B, vec.end() - it->first: " << vec.end() - it->first << ", level: " << level << std::endl;
 		}
+//		if (vec.end() - it->first >= (level << 1)) {
+//			tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
+//			std::cout << "Option A" << std::endl;
+//		} else {
+//			tmp_vec.insert(tmp_vec.end(), it->first, vec.end());
+//			std::cout << "Option B, vec.end() - it->first: " << vec.end() - it->first << ", level: " << level << std::endl;
+//		}
 	}
 //	if (leftover != vec.end() && level != 1)
 //		tmp_vec.insert(tmp_vec.end(), leftover, leftover + dist);
-	std::cout << "done\n" << std::endl;
+	std::vector<int>::iterator	res;
+
+	if (leftover != vec.end() && (res = std::search(tmp_vec.begin(), tmp_vec.end(), leftover, leftover + dist)) == tmp_vec.end()) {
+		std::cout << "\tres not found, dist: " << dist << std::endl;
+		tmp_vec.insert(tmp_vec.end(), leftover, leftover + dist);
+	}
 	vec.swap(tmp_vec);
+	std::cout << "after swapping tmp_vec and vec" << std::endl;
+	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it)
+		std::cout << *it << ' ';
+	std::cout << "\ndone\n" << std::endl;
 	if (level == 1)
 		std::reverse(vec.begin(), vec.end());
 	return (length << 1);
