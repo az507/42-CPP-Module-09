@@ -440,7 +440,7 @@ int	mergeInsertSort(std::vector<int>& vec, int level);
 
 void	PmergeMe::sort(void)
 {
-//	size_t	old_vsize = m_vector.size(), old_lsize = m_list.size();
+//	size_t	old_vsize = m_vector.size();//, old_lsize = m_list.size();
 //
 //	generateJacobsthalSequence();
 //	if (old_vsize > 1)
@@ -448,16 +448,17 @@ void	PmergeMe::sort(void)
 //	if (old_lsize > 1)
 //		merge_insert_sort(m_list, ltime_taken, jacobsthalSequence);
 //	jacobsthalSequence.clear();
-//	if (old_vsize != m_vector.size() || old_lsize != m_list.size())
-//		throw std::logic_error("missing elements in container after sorting");
 	mergeInsertSort(this->m_vector, 1);
+	std::cout << "size after sorting: " << m_vector.size() << std::endl;
+//	if (old_vsize != m_vector.size())//|| old_lsize != m_list.size())
+//		throw std::logic_error("missing elements in container after sorting");
 }
 
 void	compareAndSwap(std::vector<int>& vec, int n)
 {
 	std::vector<int>::iterator	it1 = vec.begin(), it2;
 
-	while (it1 != vec.end())
+	while (it1 != vec.end() && vec.end() - it1 >= (n << 1))
 	{
 		it2 = it1 + n;
 	//	std::cout << "before: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
@@ -498,9 +499,12 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 		std::vector<int>::iterator dfl_value)
 {
 	std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::iterator	mid;
+	std::vector<int>::iterator									v1, v2;
 	int												key;
 
 	assert(it->second != dfl_value);
+	v1 = it->first;
+	v2 = it->second;
 	key = *(it->second);
 	//it->second = dfl_value;
 	while (low <= high)
@@ -511,7 +515,7 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 			if (*mid == p_vec.back()) {
 				p_vec.push_back(std::make_pair(it->second, dfl_value));
 				break ;
-			} else if (*((++mid)->first) < key) {
+			} else if ((++mid)->first == dfl_value || *(mid->first) < key) {
 				p_vec.insert(mid, std::make_pair(it->second, dfl_value));
 				break ;
 			} else
@@ -522,67 +526,144 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 			if (mid == p_vec.begin()) {
 				p_vec.insert(p_vec.begin(), std::make_pair(it->second, dfl_value));
 				break ;
-			} else if (*((--mid)->first) > key) {
+			} else if ((--mid)->first == dfl_value || *(mid->first) > key) {
 				p_vec.insert(++mid, std::make_pair(it->second, dfl_value));
 				break ;
 			} else
 				high = mid;
 		}
 	}
-	it->second = dfl_value;
+	std::find(p_vec.begin(), p_vec.end(), std::make_pair(v1, v2))->second = dfl_value;
+	//it->second = dfl_value;
 }
 
 int	mergeInsertSort(std::vector<int>& vec, int level)
 {
-	std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator > >::iterator	start_pt;
+	//std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator > >::iterator	leftover;
 	std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator > >		p_vec;
+	std::vector<int>::iterator									leftover;
 	std::vector<int>										jacob, pend, tmp_vec;
+	std::ptrdiff_t											dist = 0;
 	int												length, count;
 
-	if ((size_t)level >= vec.size())
+	std::cout << "level: " << level << std::endl;
+	//if (level >= (int)vec.size() || (int)vec.size() - level < level)
+	if (level >= (int)vec.size() || (vec.size() / level) <= 1) {
+		std::cout << "returning" << std::endl;
 		return (1);
+	}
+	//std::cout << "remainder: " << vec.size() % level << std::endl;
 	compareAndSwap(vec, level);
 	length = mergeInsertSort(vec, level << 1);
+	leftover = vec.end();
+	std::cout << "vec.size(): " << vec.size() << std::endl;
+	for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); ++it)
+		std::cout << *it << ' ';
+	std::cout << std::endl;
 	for (std::vector<int>::iterator it = vec.begin(); it != vec.end(); it += (level << 1))
+	{
+		std::cout << "vec.end() - it: " << vec.end() - it << ", level << 1: " << (level << 1) << std::endl;
+		if (vec.end() - it < (level << 1)) {
+		//	p_vec.push_back(std::make_pair(it, --vec.end()));
+		//	leftover = it + level + 1;
+			leftover = it;
+			dist = vec.end() - it;
+			std::cout << "leftover: " << *leftover << std::endl;
+			break ;
+		}
+		//std::cout << "pushed, *it: " << *it << std::endl;
 		p_vec.push_back(std::make_pair(it, it + level));
-	jacob = createJacobSeq(length);
+//		if (vec.end() - it < (level << 1))
+//		{
+//			//std::cout << "breaking, vec.end() - it: " << vec.end() - it << std::endl;
+//			//leftover = it;
+//			//p_vec.push_back(std::make_pair(it + level + 1, --vec.end()));
+//			break ;
+//		}
+	}
+//	if (leftover != vec.end())
+//		std::cout << "leftover: " << *leftover << std::endl;
 
+	std::cout << "Before appending b1 to a1" << std::endl;
+	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
+		std::cout << "a: " << *(it->first) << ", b: " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << std::endl;
 	//insert b1 into back of main chain
 	p_vec.push_back(std::make_pair(p_vec.back().second, vec.end()));
 	p_vec.at(p_vec.size() - 2).second = vec.end();
 
-	if (!jacob.empty())
-	{
+	int	x = 0;
+	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
+		if (it->second != vec.end()) {
+			++x;
+		}
+	}
+	std::cout << "\tx:	" << x << std::endl;
+
+	jacob = createJacobSeq(x + 1);
+	std::cout << "jacob of length " << length << ": ";
+	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
+		std::cout << *it << ' ';
+	std::cout << std::endl;
+
+	std::cout << "After appending b1 to a1" << std::endl;
+	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
+		std::cout << "a: " << *(it->first) << ", b: " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << std::endl;
+
+	if (!jacob.empty()) {
 		//place elems to be inserted into pend vector, which is determined by jacob seq
-		for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
-		{
+		for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it) {
 			count = 1;
-			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >
-				::reverse_iterator y = p_vec.rbegin(); y != p_vec.rend(); ++y)
-			{
-				if (y->second != vec.end() && ++count == *it)
-				{
+			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::reverse_iterator y = p_vec.rbegin(); y != p_vec.rend(); ++y) {
+				if (y->second != vec.end() && ++count == *it) {
 					pend.push_back(*(y->second));
 					break ;
 				}
 			}
 		}
-		for (std::vector<int>::const_iterator it = pend.begin(); it != pend.end(); ++it)
-		{
-			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::iterator tmp = p_vec.begin(); tmp != p_vec.end(); ++tmp)
-			{
-				if (tmp->second != vec.end() && *(tmp->second) == *it)
-				{
+		std::cout << "before primary binary search insert" << std::endl;
+		for (std::vector<int>::const_iterator it = pend.begin(); it != pend.end(); ++it) {
+			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::iterator tmp = p_vec.begin(); tmp != p_vec.end(); ++tmp) {
+				if (tmp->second != vec.end() && *(tmp->second) == *it) {
 					//place elems to be inserted into pend vector, which is determined by jacob seq
 					binarySearchInsert(p_vec, tmp + 1, p_vec.end(), tmp, vec.end());
 					break ;
 				}
 			}
+			if (it + 1 == pend.end())
+				std::cout << "break cond met" << std::endl;
 		}
 	}
-
+	std::cout << "after primary binary search insert" << std::endl;
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
-		tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
+		std::cout << "a: " << *(it->first) << ", b: " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << std::endl;
+	// remainder should be 1 group by itself, so only need 1 insertion for 1 group (remainder amt) of elems (which shld be less than length)
+
+	if (leftover != vec.end() && level != 1) {
+		std::cout << "inserting leftover elems" << std::endl;
+		p_vec.push_back(std::make_pair(vec.end(), leftover));
+		binarySearchInsert(p_vec, p_vec.begin(), --p_vec.end(), --p_vec.end(), vec.end());
+		p_vec.pop_back();
+	} else if (leftover != vec.end() && level == 1) {
+		for (std::vector<int>::iterator it = leftover; it != vec.end(); ++it) {
+			p_vec.push_back(std::make_pair(vec.end(), it));
+			binarySearchInsert(p_vec, p_vec.begin(), --p_vec.end(), --p_vec.end(), vec.end());
+		}
+	}
+	std::cout << "after leftover binary search insert" << std::endl;
+	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
+	{
+		//std::cout << "level during insert to tmp: " << level << std::endl;
+		if (vec.end() - it->first >= (level << 1)) {
+			tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
+			std::cout << "Option A" << std::endl;
+		} else {
+			tmp_vec.insert(tmp_vec.end(), it->first, vec.end());
+			std::cout << "Option B, vec.end() - it->first: " << vec.end() - it->first << ", level: " << level << std::endl;
+		}
+	}
+//	if (leftover != vec.end() && level != 1)
+//		tmp_vec.insert(tmp_vec.end(), leftover, leftover + dist);
+	std::cout << "done\n" << std::endl;
 	vec.swap(tmp_vec);
 	if (level == 1)
 		std::reverse(vec.begin(), vec.end());
@@ -593,8 +674,8 @@ void	PmergeMe::checkSorted(void) const
 {
 	if (std::adjacent_find(m_vector.begin(), m_vector.end(), std::greater<int>()) != m_vector.end())
 		throw std::logic_error("unsorted vector");
-	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) != m_list.end())
-		throw std::logic_error("unsorted list");
+//	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) != m_list.end())
+//		throw std::logic_error("unsorted list");
 }
 
 PmergeMe::PmergeMe(void) {}
