@@ -583,6 +583,11 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	}
 //	if (leftover != vec.end())
 //		std::cout << "leftover: " << *leftover << std::endl;
+	jacob = createJacobSeq(length);
+	std::cout << "jacob of length " << length << ": ";
+	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
+		std::cout << *it << ' ';
+	std::cout << std::endl;
 
 	std::cout << "Before appending b1 to a1" << std::endl;
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
@@ -591,19 +596,13 @@ int	mergeInsertSort(std::vector<int>& vec, int level)
 	p_vec.push_back(std::make_pair(p_vec.back().second, vec.end()));
 	p_vec.at(p_vec.size() - 2).second = vec.end();
 
-	int	x = 0;
-	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
-		if (it->second != vec.end()) {
-			++x;
-		}
-	}
-	std::cout << "\tx:	" << x << std::endl;
-
-	jacob = createJacobSeq(x + 1);
-	std::cout << "jacob of length " << length << ": ";
-	for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it)
-		std::cout << *it << ' ';
-	std::cout << std::endl;
+//	int	x = 0;
+//	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
+//		if (it->second != vec.end()) {
+//			++x;
+//		}
+//	}
+//	std::cout << "\tx:	" << x << std::endl;
 
 	std::cout << "After appending b1 to a1" << std::endl;
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it)
