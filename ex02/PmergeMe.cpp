@@ -460,18 +460,56 @@ void	PmergeMe::sort(void)
 void	compareAndSwap(std::vector<int>& vec, int n)
 {
 	std::vector<int>::iterator	it1 = vec.begin(), it2;
+	std::ptrdiff_t			dist;
 
+	(void)dist;
+	std::cout << "\tn = " << n << std::endl;
 	while (it1 != vec.end() && vec.end() - it1 >= (n << 1))
 	{
+		if (n == 4)
+			std::cout << "vec.end() - it1 = " << vec.end() - it1 << ", n << 1 = " << (n << 1) << std::endl;
 		it2 = it1 + n;
-	//	std::cout << "before: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
+//		if (n == 4)
+//			std::cout << "before: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
 		if (*it1 < *it2)
 		{
 			std::swap_ranges(it1, it2, it2);
-		//	std::cout << "after: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
+//			if (n == 4)
+//				std::cout << "after: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
 		}
 		it1 += n << 1;
 	}
+//	if (n == 4)
+//		std::cout << "vec.end() - it1 = " << vec.end() - it1 << ", n << 1 = " << (n << 1) << std::endl;
+	std::cout << "\tafter compare and swap: ";
+	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+		std::cout << *it << ' ';
+	}
+	std::cout << std::endl;
+//	std::vector<int>	tmp_vec;
+//	if (n == 4 && (dist = (vec.end() - it1))) {
+//		std::cout << "\tdist here is " << dist << std::endl;
+//		tmp_vec.insert(tmp_vec.end(), it1, it1 + n);
+//		std::cout << "x:	";
+//		for (std::vector<int>::const_iterator x = tmp_vec.begin(); x != tmp_vec.end(); ++x) {
+//			std::cout << *x << ' ';
+//		}
+//		std::cout << std::endl;
+//		dist = std::distance(it1 + n, vec.end());
+//		std::copy_backward(it1 + n, vec.end(), it1 + dist);
+//		std::copy(tmp_vec.begin(), tmp_vec.end(), it1 + dist);
+//		std::cout << "after copy backward, x:  ";
+//		for (std::vector<int>::const_iterator x = it1; x != vec.end(); ++x) {
+//			std::cout << *x << ' ';
+//		}
+//		std::cout << std::endl;
+//		it2 = vec.end() - dist - 1;
+//		if (*it1 < *it2) {
+//			std::swap_ranges(it1, it2, it2);
+//		}
+//	} else {
+//		std::cout << "\tno dist" << std::endl;
+//	}
 }
 
 std::vector<int>	createJacobSeq(int size)
@@ -552,8 +590,8 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 	int												length, count;
 
 	// if there are any remainders/leftovers when forming pairs, store them in rmd vector which we will use binary search insert onto sorted vec ltr
-	if ((level >= (int)vec.size() || (vec.size() / level) <= 1) && (remainder = vec.size() % (level >> 1))) {
-		rmd.resize(remainder);
+	if (level >= (int)vec.size() || (vec.size() / level) <= 1) {
+		rmd.resize(remainder = vec.size() % (level >> 1));
 		std::cout << "remainders stored, remainder: " << remainder << std::endl;
 		std::copy(vec.end() - remainder, vec.end(), rmd.begin());
 		//rmd.insert(rmd.end(), vec.end() - remainder, vec.end());
@@ -575,6 +613,7 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 	}
 	compareAndSwap(vec, level);
 	length = mergeInsertSort(vec, level << 1);
+	//compareAndSwap(vec, level);
 	std::cout << "level: " << level << std::endl;
 	for (std::vector<int>::iterator it = vec.begin(); it != vec.end() - remainder; it += (level << 1)) {
 		if (vec.end() - remainder - it < level) {
