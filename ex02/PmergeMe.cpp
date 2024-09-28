@@ -425,11 +425,13 @@ void	PmergeMe::generateJacobsthalSequence(void)
 	{
 		n = getJacobsthalNumber(i);
 		if (n <= max) {
-			for (int x = n; x > prev; --x)
+			for (int x = n; x > prev; --x) {
 				jacobsthalSequence.push_back(x);
+			}
 		} else {
-			for (int x = max; x > prev; --x)
+			for (int x = max; x > prev; --x) {
 				jacobsthalSequence.push_back(x);
+			}
 			break ;
 		}
 		prev = n;
@@ -548,11 +550,9 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 	v2 = it->second;
 	key = *(it->second);
 	//it->second = dfl_value;
-	while (low <= high)
-	{
+	while (low <= high) {
 		mid = low + ((high - low) >> 1);
-		if (*(mid->first) > key)
-		{
+		if (*(mid->first) > key) {
 			if (*mid == p_vec.back()) {
 				p_vec.push_back(std::make_pair(it->second, dfl_value));
 				break ;
@@ -561,9 +561,7 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 				break ;
 			} else
 				low = mid;
-		}
-		else if (*(mid->first) < key)
-		{
+		} else if (*(mid->first) < key) {
 			if (mid == p_vec.begin()) {
 				p_vec.insert(p_vec.begin(), std::make_pair(it->second, dfl_value));
 				break ;
@@ -572,9 +570,9 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 				break ;
 			} else
 				high = mid;
-		}
-		else
+		} else {
 			break ;
+		}
 	}
 	std::find(p_vec.begin(), p_vec.end(), std::make_pair(v1, v2))->second = dfl_value;
 	//it->second = dfl_value;
@@ -616,7 +614,9 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 	//compareAndSwap(vec, level);
 	std::cout << "level: " << level << std::endl;
 	for (std::vector<int>::iterator it = vec.begin(); it != vec.end() - remainder; it += (level << 1)) {
-		if (vec.end() - remainder - it < level) {
+		std::cout << "vec.end() - remainder = " << vec.end() - remainder - it << std::endl;
+		if (vec.end() - remainder - it < (level << 1)) {
+			p_vec.push_back(std::make_pair(it, vec.end()));
 			break ;
 		}
 		p_vec.push_back(std::make_pair(it, it + level));
@@ -673,6 +673,7 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 			}
 		}
 	}
+	// if there are odd number of pairs, last pair shld be handled in this if block below e.g. 3 pairs left when sorting 15 numbers
 	if (odd) {
 		p_vec.push_back(tmp_pair);
 		binarySearchInsert(p_vec, p_vec.begin(), --p_vec.end(), --p_vec.end(), vec.end());
