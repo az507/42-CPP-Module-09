@@ -22,11 +22,11 @@ int	main(int argc, char *argv[])
 	if (argc == 1)
 		return (0);
 	try {
-		while (*++argv)
-		{
+		while (*++argv) {
 			num = str_to_nbr<int, char>(*argv, ss);
-			if (num < 0)
+			if (num < 0) {
 				return (std::cerr << "Error\n", 1);
+			}
 			instance.addNumber(num);
 		}
 	}

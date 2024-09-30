@@ -15,5 +15,6 @@ max_var=$upper_limit
 for ((i = 0; i < $max_iterations; i++));
 do
 	x=$(awk -v max=$max_var -v min=$min_var -v seed="$(od -An -N4 -tu4 /dev/urandom)" 'BEGIN{srand(seed+0); printf("%d", int(min+rand()*(max-min+1)))}')
-	./PmergeMe `shuf -i 1-100000 -n$x | tr "\n" " "`
+	#./PmergeMe `shuf -i 1-100000 -n$x | tr "\n" " "`
+	./PmergeMe `shuf -i 1-$x | tr "\n" " "`
 done
