@@ -30,9 +30,9 @@ class	PmergeMe
 		~PmergeMe(void);
 		PmergeMe(const PmergeMe &);
 		PmergeMe	&operator=(const PmergeMe &);
-		void		generateJacobsthalSequence(void);
+		void		generateJacobsthalSequence(void); // not needed
 
-		std::vector<int>	jacobsthalSequence;
+		std::vector<int>	jacobsthalSequence; // not needed
 		std::vector<int>	m_vector;
 		std::list<int>		m_list;
 		long double		vtime_taken[2]; // [0]: data management, [1]: sorting part

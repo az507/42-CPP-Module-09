@@ -35,11 +35,11 @@ void	PmergeMe::printNumbers(void) const
 {
 	int	digitsNbr = getDigitsNbr(*std::max_element(m_vector.begin(), m_vector.end()));
 
-	for (std::vector<int>::const_iterator it = m_vector.begin(); it != m_vector.end(); ++it)
+	/*for (std::vector<int>::const_iterator it = m_vector.begin(); it != m_vector.end(); ++it)
 		std::cout << std::setw(digitsNbr) << *it << ' ';
-	std::cout << '\n';
-	/*for (std::list<int>::const_iterator it = m_list.begin(); it != m_list.end(); ++it)
-		std::cout << std::setw(digitsNbr) << *it << ' ';*/
+	std::cout << '\n';*/
+	for (std::list<int>::const_iterator it = m_list.begin(); it != m_list.end(); ++it)
+		std::cout << std::setw(digitsNbr) << *it << ' ';
 	std::cout << '\n';
 }
 
@@ -62,6 +62,7 @@ void	PmergeMe::printDetailedTime(void) const
 	std::cout << "Time taken for sorting part:    " << ltime_taken[1] << " us" << std::endl;
 }
 
+/*
 void	merge(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& pairs_list,
 		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator& low,
 		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator& mid,
@@ -410,13 +411,6 @@ void	merge_insert_sort(std::vector<int>& vector, long double *vtime_taken, const
 											clock_gettime(CLOCK_REALTIME, &tp[1]); vtime_taken[0] += timediff_ms(tp[0], tp[1]);
 }
 
-int	getJacobsthalNumber(int i)
-{
-	if (i <= 1)
-		return i;
-	return getJacobsthalNumber(i - 1) + 2 * getJacobsthalNumber(i - 2);
-}
-
 void	PmergeMe::generateJacobsthalSequence(void)
 {
 	int	max = m_vector.size() >> 1, n, prev = 1;
@@ -437,13 +431,22 @@ void	PmergeMe::generateJacobsthalSequence(void)
 		prev = n;
 	}
 }
+*/
 
-int	mergeInsertSort(std::vector<int>& vec, int level);
+int	getJacobsthalNumber(int i)
+{
+	if (i <= 1)
+		return i;
+	return getJacobsthalNumber(i - 1) + 2 * getJacobsthalNumber(i - 2);
+}
+
+void	mergeInsertSort(std::vector<int>& vec, int level);
+void	mergeInsertSort(std::list<int>& list, int level);
 void	rearrangeVectorElems(std::vector<int>& vec, const std::vector<int>& ref);
 
 void	PmergeMe::sort(void)
 {
-	size_t	old_vsize = m_vector.size();//, old_lsize = m_list.size();
+	size_t	old_vsize = m_vector.size(), old_lsize = m_list.size();
 //
 //	generateJacobsthalSequence();
 //	if (old_vsize > 1)
@@ -453,10 +456,12 @@ void	PmergeMe::sort(void)
 //	jacobsthalSequence.clear();
 	if (this->m_vector.size() > 1) {
 		mergeInsertSort(this->m_vector, 1);
+		mergeInsertSort(this->m_list, 1);
 	}
 	std::cout << "size after sorting: " << m_vector.size() << std::endl;
-	if (old_vsize != m_vector.size())//|| old_lsize != m_list.size())
+	if (old_vsize != m_vector.size() || old_lsize != m_list.size()) {
 		throw std::logic_error("missing elements in container after sorting");
+	}
 }
 
 void	compareAndSwap(std::vector<int>& vec, int n)
@@ -464,12 +469,19 @@ void	compareAndSwap(std::vector<int>& vec, int n)
 	std::vector<int>::iterator	it1 = vec.begin(), it2;
 	std::ptrdiff_t			dist;
 
-	(void)dist;
-	std::cout << "\tn = " << n << std::endl;
-	while (it1 != vec.end() && vec.end() - it1 >= (n << 1))
+//	(void)dist;
+//	std::cout << "\tn = " << n << std::endl;
+	// only swap within a pair, if there are odd number of elems, the last "half-pair" doesnt need to be compared and swapped
+	while (it1 != vec.end())// && vec.end() - it1 >= (n << 1))
 	{
-		if (n == 4)
-			std::cout << "vec.end() - it1 = " << vec.end() - it1 << ", n << 1 = " << (n << 1) << std::endl;
+		//std::cout << "\t*it1 = " << *it1 << std::endl;
+		if ((dist = vec.end() - it1) < (n << 1)) {
+			//std::cout << "\tVEC DIST = " << dist << std::endl;
+			break ;
+		}
+//		if (n == 4)
+//			std::cout << "vec.end() - it1 = " << vec.end() - it1 << ", n << 1 = " << (n << 1) << std::endl;
+		//std::cout << "\tcomparing in vec" << std::endl;
 		it2 = it1 + n;
 //		if (n == 4)
 //			std::cout << "before: *it1: " << *it1 << ", *it2: " << *it2 << std::endl;
@@ -483,11 +495,11 @@ void	compareAndSwap(std::vector<int>& vec, int n)
 	}
 //	if (n == 4)
 //		std::cout << "vec.end() - it1 = " << vec.end() - it1 << ", n << 1 = " << (n << 1) << std::endl;
-	std::cout << "\tafter compare and swap: ";
-	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
+//	std::cout << "\tafter compare and swap: ";
+//	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << std::endl;
 //	std::vector<int>	tmp_vec;
 //	if (n == 4 && (dist = (vec.end() - it1))) {
 //		std::cout << "\tdist here is " << dist << std::endl;
@@ -508,7 +520,7 @@ void	compareAndSwap(std::vector<int>& vec, int n)
 //		it2 = vec.end() - dist - 1;
 //		if (*it1 < *it2) {
 //			std::swap_ranges(it1, it2, it2);
-//		}
+//		    while (low <= high) {
 //	} else {
 //		std::cout << "\tno dist" << std::endl;
 //	}
@@ -523,12 +535,15 @@ std::vector<int>	createJacobSeq(int size)
 	{
 		n = getJacobsthalNumber(i);
 		if (n >= size) {
-			for (int x = size; x > prev; --x)
+			for (int x = size; x > prev; --x) {
 				jacob.push_back(x);
+			}
 			break ;
-		} else
-			for (int x = n; x > prev; --x)
+		} else {
+			for (int x = n; x > prev; --x) {
 				jacob.push_back(x);
+			}
+		}
 		prev = n;
 	}
 	return (jacob);
@@ -579,70 +594,46 @@ void	binarySearchInsert(std::vector<std::pair<std::vector<int>::iterator, std::v
 }
 
 // level is used for determining the range of vec iterators that we r grouping into a single object (one half of the pair)
-int	mergeInsertSort(std::vector<int>& vec, int level) {
+void	mergeInsertSort(std::vector<int>& vec, int level) {
 
 	std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator > >		p_vec;
-	static std::vector<int>										rmd;
 	std::vector<int>										jacob, pend, tmp_vec;
 	static int											remainder = 0;
-	int												length, count;
 
-	// if there are any remainders/leftovers when forming pairs, store them in rmd vector which we will use binary search insert onto sorted vec ltr
+	// recursion endpt/base cond, where we cant even form a pair (2 groups of elems) to be sorted
 	if (level >= (int)vec.size() || (vec.size() / level) <= 1) {
-		rmd.resize(remainder = vec.size() % (level >> 1));
-		std::cout << "remainders stored, remainder: " << remainder << std::endl;
-		std::copy(vec.end() - remainder, vec.end(), rmd.begin());
-		//rmd.insert(rmd.end(), vec.end() - remainder, vec.end());
-		for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-			std::cout << *it << ", " << &*it << std::endl;;
-		}
-		std::cout << "vec.size() here: " << vec.size() << std::endl;
-		// this erase here could be causing the vector to shrink and reallocate, but then no pair vectors containing iterators
-		// to the original vec shld have been created yet as of this point, but then later on when inserting remainders into p_vec
-		// at level == 1, those iterators will be pointing to the static rmd vec and not the original vec
-
-		// maybe can push all remainders to back of original vec? 
-
-		//vec.erase(vec.end() - remainder, vec.end());
-//		for (std::vector<int>::iterator it = vec.end() - remainder; it != vec.end(); ++it) {
-//			*it = 0;
-//		}
-		return (1);
+		remainder = vec.size() % (level >> 1);
+		//std::cout << "\t>>>>> level = " << level << ", vec.size() - remainder (" << remainder << ") = " << vec.size() - remainder << std::endl;
+		return ;
 	}
 	compareAndSwap(vec, level);
-	length = mergeInsertSort(vec, level << 1);
-	//compareAndSwap(vec, level);
-	std::cout << "level: " << level << std::endl;
+//	std::cout << "vec:	";
+//	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << std::endl;
+	mergeInsertSort(vec, level << 1);
 	for (std::vector<int>::iterator it = vec.begin(); it != vec.end() - remainder; it += (level << 1)) {
-		std::cout << "vec.end() - remainder = " << vec.end() - remainder - it << std::endl;
 		if (vec.end() - remainder - it < (level << 1)) {
 			p_vec.push_back(std::make_pair(it, vec.end()));
 			break ;
 		}
 		p_vec.push_back(std::make_pair(it, it + level));
 	}
-	std::cout << "Initial p_vec:";
-	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
-		std::cout << '(' << *(it->first) << ", " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << "), ";
-	}
-	std::cout << std::endl;
 	std::pair<std::vector<int>::iterator, std::vector<int>::iterator>	tmp_pair;
 	bool									odd = false;
 
-	// this below will usually happen if nbr of elems after trimming away remainders is not a power of 2
+	// this below will usually happen if nbr of elems, after trimming away remainders, is not a power of 2 || odd number of pairs
 	if (p_vec.back().second == vec.end()) {
 		tmp_pair = std::make_pair(p_vec.back().second, p_vec.back().first);
 		p_vec.pop_back();
 		odd = true;
-		std::cout << "odd, p_vec.size() = " << p_vec.size() << ", rmd.size(): " << rmd.size() << std::endl;
-		//exit(1);
-	} else {
-		std::cout << "not odd" << std::endl;
 	}
 	//insert b1 into back of main chain
 	p_vec.push_back(std::make_pair(p_vec.back().second, vec.end()));
 	p_vec.at(p_vec.size() - 2).second = vec.end();
 
+	// figure out how long my jacob seq shld be, depends on number of elems on pend chain to be inserted back into main chain
 	int	x = 0;
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
 		if (it->second != vec.end()) {
@@ -651,13 +642,13 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 	}
 	jacob = createJacobSeq(x + 1);
 	if (!jacob.empty()) {
+		int	count;
 		//place elems to be inserted into pend vector, which is determined by jacob seq
 		for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it) {
 			count = 1;
 			for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::reverse_iterator y = p_vec.rbegin(); y != p_vec.rend(); ++y) {
 				if (y->second != vec.end() && ++count == *it) {
 					pend.push_back(*(y->second));
-					std::cout << "*(y->second) = " << *(y->second) << std::endl;
 					break ;
 				}
 			}
@@ -667,7 +658,6 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 				if (tmp->second != vec.end() && *(tmp->second) == *it) {
 					//place elems to be inserted into pend vector, which is determined by jacob seq
 					binarySearchInsert(p_vec, tmp + 1, p_vec.end(), tmp, vec.end());
-					std::cout << "insert into p_vec" << std::endl;
 					break ;
 				}
 			}
@@ -679,88 +669,29 @@ int	mergeInsertSort(std::vector<int>& vec, int level) {
 		binarySearchInsert(p_vec, p_vec.begin(), --p_vec.end(), --p_vec.end(), vec.end());
 		p_vec.pop_back();
 	}
-//	std::cout << "\tbefore remainders, tmp_vec: ";
-//	for (std::vector<int>::const_iterator it = tmp_vec.begin(); it != tmp_vec.end(); ++it) {
-//		std::cout << *it << ' ';
-//	}
-	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
-		std::cout << '(' << *(it->first) << ", " << ((it->second == vec.end()) ? std::numeric_limits<int>::min() : *(it->second)) << "), ";
-	}
-	std::cout << std::endl;
-		if (level == 1 && !rmd.empty()) {
-			std::cout << "9999 remainders: ";
-			for (std::vector<int>::const_iterator it = rmd.begin(); it != rmd.end(); ++it) {
-				std::cout << *it << ' ';
-			}
-			std::cout << std::endl;
-			// changed to using original vec below instead of rmd vec, because i need all iterators that are members of the pair vector
-			// to be pointing to the original vec instead of rmd vec, else it wld cause problems below like std::distance = -300
-			for (std::vector<int>::iterator it = vec.end() - remainder; it != vec.end(); ++it) {
-				std::cout << "in here (a)" << std::endl;
-				p_vec.push_back(std::make_pair(vec.end(), it));
-				binarySearchInsert(p_vec, p_vec.begin(), --p_vec.end(), --p_vec.end(), vec.end());
-				p_vec.pop_back();
-			}
+	if (level == 1 && remainder) {
+		for (std::vector<int>::iterator it = vec.end() - remainder; it != vec.end(); ++it) {
+			p_vec.push_back(std::make_pair(vec.end(), it));
+			binarySearchInsert(p_vec, p_vec.begin(), --p_vec.end(), --p_vec.end(), vec.end());
+			p_vec.pop_back();
 		}
-		std::cout << "\tp_vec.size(): " << p_vec.size() << std::endl;
-//	try {
-		int	idx = 0;
+	}
 	for (std::vector<std::pair<std::vector<int>::iterator, std::vector<int>::iterator> >::const_iterator it = p_vec.begin(); it != p_vec.end(); ++it) {
-		std::cout << "vec.end() - it->first = " << vec.end() - it->first << ", level: " << level << std::endl;
-		std::cout << "*(it->first) = " << *(it->first) << std::endl;
-		std::cout << "addr of it->first: " << &(*(it->first)) << ", addr of begin(): " << &(*vec.begin()) << std::endl;
-		std::cout << "dist: " << std::distance(vec.begin(), it->first) << ", vec.capacity() = " << vec.capacity() << std::endl;
-	//	tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
 		if (vec.end() - it->first >= level) {
-			std::cout << "option a" << std::endl;
 			tmp_vec.insert(tmp_vec.end(), it->first, it->first + level);
 		} else {
-			// option b seems to always trigger exception from insert
-			std::cout << "option b" << std::endl;
 			tmp_vec.insert(tmp_vec.end(), it->first, vec.end());
 		}
-		for (std::vector<int>::const_iterator it = tmp_vec.begin(); it != tmp_vec.end(); ++it) {
-			std::cout << *it << ' ';
-		}
-		std::cout << std::endl;
-		++idx;
 	}
-	std::cout << "\tidx for tmp_vec inserts = " << idx << std::endl;
-//	} catch (const std::exception& e) {
-//		std::cerr << e.what() << '\n';
-//	}
-	// it seems that after each swap, the prev iterators that were pointing to vec have been invalidated
-	//vec.swap(tmp_vec);
-	std::cout << "before, vec.size(): " << vec.size() << ", tmp_vec.size(): " << tmp_vec.size() << std::endl;
-	std::cout << "before rearranging: ";
-	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
-	//vec.swap(tmp_vec);
 	rearrangeVectorElems(vec, tmp_vec);
-	std::cout << "after, vec.size(): " << vec.size() << ", tmp_vec.size(): " << tmp_vec.size() << std::endl;
-	std::cout << "after tmp_vec		: ";
-	for (std::vector<int>::const_iterator it = tmp_vec.begin(); it != tmp_vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
-	std::cout << "after rearranging, vec: ";
-	for (std::vector<int>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
 	if (level == 1) {
 		std::reverse(vec.begin(), vec.end());
 	}
-	return (length << 1);
 }
 
 void	rearrangeVectorElems(std::vector<int>& vec, const std::vector<int>& ref) {
 
 	int	idx = 0;
-
-	std::cout << "\tref.size() = " << ref.size() << std::endl;
 	for (std::vector<int>::const_iterator it = ref.begin(); it != ref.end(); ++it) {
 		//for (std::vector<int>::iterator tmp = vec.begin(); tmp != vec.end(); ++tmp) {
 		for (std::vector<int>::iterator tmp = vec.begin(); tmp != vec.begin() + ref.size(); ++tmp) {
@@ -772,22 +703,337 @@ void	rearrangeVectorElems(std::vector<int>& vec, const std::vector<int>& ref) {
 		}
 		++idx;
 	}
-	std::cout << "\tidx = " << idx << std::endl;
 }
 
 /*
-int	mergeInsertSort(std::list<int>& list, int level) {
+void	compareAndSwap(std::vector<int>& vec, int n)
+{
+	std::vector<int>::iterator	it1 = vec.begin(), it2;
+	std::ptrdiff_t			dist;
 
-	return (level << 1);
+	(void)dist;
+	while (it1 != vec.end() && vec.end() - it1 >= (n << 1))
+	{
+		it2 = it1 + n;
+		if (*it1 < *it2)
+			std::swap_ranges(it1, it2, it2);
+		it1 += n << 1;
+	}
 }
 */
 
+void	compareAndSwap(std::list<int>& list, int n) {
+
+	std::list<int>::iterator	it1, it2;
+	std::ptrdiff_t	dist;
+
+	it1 = list.begin();
+	//std::cout << "before: " << *it1 << std::endl;
+//	std::cout << "dist: " << std::distance(it1, list.end()) << ", n << 1 = " << (n << 1) << std::endl;
+	//std::cout << "after: " << *it1 << std::endl;
+	while (it1 != list.end()) {//&& std::distance(it1, list.end()) >= (n << 1)) {
+//		std::cout << "cmp: ";
+//		for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+//			std::cout << *it << ' ';
+//		}
+//		std::cout << "\t*it1 in compareAndSwap = " << *it1 << std::endl;
+		if ((dist = std::distance(it1, list.end()) < (n << 1))) {
+//			std::cout << "\tDIST = " << dist << std::endl;
+			break ;
+		}
+//		std::cout << std::endl;
+		it2 = it1;
+		std::advance(it2, n);
+		if (*it1 < *it2) {
+			std::swap_ranges(it1, it2, it2);
+		}
+		std::advance(it1, n << 1);
+	}
+//	std::cout << "cmp: ";
+//	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << std::endl;
+}
+
+// low is actually upper bound, high is 1 elem past lower bound
+void	binarySearchInsert(std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >& p_list,
+		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator low,
+		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator high,
+		std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it,
+		std::list<int>::iterator dfl_value) {
+
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	mid;
+	std::list<int>::iterator								p, v1;
+	std::ptrdiff_t										diff1, diff2, dist;
+	int											key;
+
+	assert(it->second != dfl_value);
+	v1 = it->first;
+	p = it->second;
+	key = *p;
+	while (1) {
+		diff1 = std::distance(low, p_list.end());
+		diff2 = std::distance(high, p_list.end());
+		//std::cout << "diff1 = " << diff1 << ", diff2 = " << diff2 << std::endl;
+		if (diff1 < diff2) {
+			break ;
+		}
+		mid = low;
+		dist = diff1 - diff2;
+		std::advance(mid, dist >> 1);
+		if (*(mid->first) > key) {
+			if (*mid == p_list.back()) {
+				p_list.push_back(std::make_pair(p, dfl_value));
+				break ;
+			} else if ((++mid)->first == dfl_value || *(mid->first) < key) {
+				p_list.insert(mid, std::make_pair(p, dfl_value));
+				break ;
+			} else {
+				low = mid;
+			}
+		} else {
+			if (*mid == p_list.front()) {
+				p_list.push_front(std::make_pair(p, dfl_value));
+				break ;
+			} else if ((--mid)->first == dfl_value || *(mid->first) > key) {
+				p_list.insert(++mid, std::make_pair(p, dfl_value));
+				break ;
+			} else {
+				high = mid;
+			}
+		}
+	}
+	it->second = dfl_value;
+	//std::find(p_list.begin(), p_list.end(), std::make_pair(v1, p))->second = dfl_value;
+}
+
+void	rearrangeListElems(std::list<int>& list, const std::list<int>& ref);
+
+void	mergeInsertSort(std::list<int>& list, int level) {
+
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >	p_list;
+	//static std::list<int>								rmd_list;
+	static int									remainder = 0;
+
+	if (level >= (int)list.size() || list.size() / level <= 1) {
+		remainder = list.size() % (level >> 1);
+//		std::list<int>::iterator tmp = list.end();
+//		std::advance(tmp, -(list.size() % (level >> 1)));
+//		rmd_list.splice(rmd_list.end(), list, tmp, list.end());
+//		std::cout << "rmd_list:	";
+//		for (std::list<int>::const_iterator it = rmd_list.begin(); it != rmd_list.end(); ++it) {
+//			std::cout << *it << ' ';
+//		}
+//		std::cout << std::endl;
+		return ;
+	}
+	compareAndSwap(list, level);
+	//std::cout << "\t\taddr before = " << &*p_list.rbegin()->first<< ", value = " << *(p_list.rbegin()->first) << std::endl;
+	mergeInsertSort(list, level << 1);
+	//compareAndSwap(list, level);
+//	std::cout << "list.size() = " << list.size() << ", list:	" << std::endl;
+//	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << std::endl;
+//	std::list<int>	temp_list;
+//	temp_list.resize(list.size());
+//	std::unique_copy(list.begin(), list.end(), temp_list.begin());
+//	std::cout << "temp_list.size() = " << temp_list.size() << ", temp_list:	" << std::endl;
+//	for (std::list<int>::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << std::endl;
+	//std::cout << "\t\taddr after = " << &*p_list.rbegin()  << ", value = " << *(p_list.rbegin()->first)<< std::endl;
+//	std::cout << "level:	" << level << std::endl;
+	std::list<int>::iterator	it2;
+	std::ptrdiff_t			dist;
+	for (std::list<int>::iterator it1 = list.begin(); it1 != list.end(); std::advance(it1, level << 1)) {
+//		std::cout << "*it1: " << *it1 << std::endl;
+//		std::cout << "\t looking for list end\n";
+//		for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+//			std::cout << *it << ' ';
+//		}
+//		std::cout << std::endl;
+		if ((dist = std::distance(it1, list.end()) - remainder) < level << 1) {
+			if (dist) {
+				p_list.push_back(std::make_pair(it1, list.end()));
+//				std::cout << "in here 1, *it1 = " << *it1 << std::endl;
+			}
+			break ;
+		}
+//		std::cout << "in here 2" << std::endl;
+		std::advance(it2 = it1, level);
+		p_list.push_back(std::make_pair(it1, it2));
+//		std::advance(it1, level << 1);
+	}
+//	std::cout << "\tp_list.size() = " << p_list.size() << ", level = " << level << std::endl;
+	std::pair<std::list<int>::iterator, std::list<int>::iterator>	tmp_pair;
+	bool								odd = false;
+	if (p_list.back().second == list.end()) {
+		tmp_pair = std::make_pair(list.end(), p_list.back().first);
+//		if (tmp_pair.first == list.end()) {
+//			std::cout << "tmp_pair.first is non-dereferenceable iterator" << std::endl;
+//		} else {
+//			std::cout << "*tmp_pair.first = " << *tmp_pair.first << std::endl;
+//		}
+//		if (tmp_pair.second == list.end()) {
+//			std::cout << "tmp_pair.second is non-dereferenceable iterator" << std::endl;
+//		} else {
+//			std::cout << "*tmp_pair.second = " << *tmp_pair.second << std::endl;
+//		}
+		p_list.pop_back();
+		odd = true;
+	}
+//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+//	}
+//	std::cout.put('\n');
+	p_list.push_back(std::make_pair(p_list.back().second, list.end()));
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	z;
+	std::advance(z = p_list.end(), -2);
+	z->second = list.end();
+//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+//	}
+//	std::cout.put('\n');
+	int	x = 0;
+	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = p_list.begin(); it != p_list.end(); ++it) {
+		if (it->second != list.end()) {
+			++x;
+		}
+	}
+	std::vector<int> jacob = createJacobSeq(x + 1), pend;
+	if (!jacob.empty()) {
+		int	count;
+		//generate pend chain based on jacob seq
+		for (std::vector<int>::const_iterator it = jacob.begin(); it != jacob.end(); ++it) {
+			count = 1;
+			for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::reverse_iterator y = p_list.rbegin(); y != p_list.rend(); ++y) {
+				if (y->second != list.end() && ++count == *it) {
+					pend.push_back(*(y->second));
+					break ;
+				}
+			}
+		}
+		for (std::vector<int>::const_iterator tmp = pend.begin(); tmp != pend.end(); ++tmp) {
+//			std::cout << "pend elem = " << *tmp << std::endl;
+			for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = p_list.begin(); it != p_list.end(); ++it) {
+				if (it->second != list.end() && *(it->second) == *tmp) {
+					binarySearchInsert(p_list, ++std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator(it),
+						p_list.end(), it, list.end());
+					break ;
+				}
+			}
+		}
+	}
+//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+//	}
+	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator last_it;
+	if (odd) {
+//		std::cout << "\thandling last elem (odd nbr of pairs)" << std::endl;
+		p_list.push_back(tmp_pair);
+//		last_it = p_list.end();
+//		std::advance(last_it, -1);
+		binarySearchInsert(p_list, p_list.begin(), --p_list.end(), --p_list.end(), list.end());
+		p_list.pop_back();
+//		std::cout << "after inserting last elem for odd nbr of pairs" << std::endl;
+//		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+//			std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+//		}
+//		std::cout.put('\n');
+	}
+//	if (level == 1 && !rmd_list.empty()) {
+	if (level == 1 && remainder) {
+//		for (std::list<int>::iterator it = rmd_list.begin(); it != rmd_list.end(); ++it) {
+//			p_list.push_back(std::make_pair(list.end(), it));
+//			std::advance(last_it = p_list.end(), -1);
+//			binarySearchInsert(p_list, p_list.begin(), last_it, last_it, list.end());
+//			p_list.pop_back();
+//		}
+//		std::cout << "\tremainder = " << remainder << ", list.size() = " << list.size() << std::endl;
+		std::list<int>::iterator	it;
+		for (std::advance(it = list.end(), -remainder); it != list.end(); ++it) {
+//			std::cout << "*it = " << *it << std::endl;
+			p_list.push_back(std::make_pair(list.end(), it));
+			binarySearchInsert(p_list, p_list.begin(), --p_list.end(), --p_list.end(), list.end());
+			p_list.pop_back();
+		}
+	}
+//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+//	}
+//	std::cout << std::endl;
+	std::list<int>::iterator	p;
+	std::list<int>			tmp_list;
+	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+		assert(it->first != list.end());
+//		for (std::list<int>::const_iterator x = tmp_list.begin(); x != tmp_list.end(); ++x) {
+//			std::cout << *x << ' ';
+//		}
+//		std::cout << std::endl;
+		if (std::distance(it->first, list.end()) >= level) {
+//			std::cout << "abc" << std::endl;
+			std::advance(p = it->first, level);
+			tmp_list.insert(tmp_list.end(), it->first, p);
+			//tmp_list.splice(tmp_list.end(), list, it->first, p);
+		} else {
+//			std::cout << "def" << ", *(it->first) = " << *(it->first) << std::endl;
+			tmp_list.insert(tmp_list.end(), it->first, list.end());
+			//tmp_list.splice(tmp_list.end(), list, it->first, list.end());
+		}
+	}
+//	std::cout << "\n\n\t\tREMAINDER = " << remainder << '\n' << std::endl;
+//	std::cout << "before rearranging: ";
+//	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << std::endl;
+	//list.swap(tmp_list);
+	rearrangeListElems(list, tmp_list);
+//	if (level != 1 && remainder) {
+//		std::advance(p = tmp_list.end(), -(remainder + 1));
+//		list.splice(list.end(), tmp_list, p, tmp_list.end());
+//	}
+//	std::cout << "after rearranging:  ";
+//	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+//		std::cout << *it << ' ';
+//	}
+//	std::cout << '\n' << std::endl;
+	if (level == 1) {
+		//std::reverse(list.begin(), list.end());
+		list.reverse();
+	}
+}
+
+void	rearrangeListElems(std::list<int>& list, const std::list<int>& ref) {
+
+	int				idx = 0;
+	std::list<int>::iterator	start, p;
+	for (std::list<int>::const_iterator tmp = ref.begin(); tmp != ref.end(); ++tmp) {
+		for (std::list<int>::iterator it = list.begin(); it != list.end(); ++it) {
+			if (*it == *tmp) {
+				std::advance(start = list.begin(), idx);
+				std::copy_backward(start, it, ++std::list<int>::iterator(it));
+				std::advance(p = list.begin(), idx);
+				*p = *tmp;
+				break ;
+			}
+		}
+		++idx;
+	}
+}
+
 void	PmergeMe::checkSorted(void) const {
 
-	if (std::adjacent_find(m_vector.begin(), m_vector.end(), std::greater<int>()) != m_vector.end())
+	if (std::adjacent_find(m_vector.begin(), m_vector.end(), std::greater<int>()) != m_vector.end()) {
 		throw std::logic_error("unsorted vector");
-//	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) != m_list.end())
-//		throw std::logic_error("unsorted list");
+	}
+	if (std::adjacent_find(m_list.begin(), m_list.end(), std::greater<int>()) != m_list.end()) {
+		throw std::logic_error("unsorted list");
+	}
 }
 
 PmergeMe::PmergeMe(void) {}
