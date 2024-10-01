@@ -27,17 +27,13 @@ void	RPN::perform_op(char op_type)
 
 	switch (op_type)
 	{
-		case '+':
-			num2 += num1; break ;
-		case '-':
-			num2 -= num1; break ;
-		case '/':
-			if (!num1) throw std::runtime_error("division by zero");
-			num2 /= num1; break ;
-		case '*':
-			num2 *= num1; break ;
-		default:
-			throw std::invalid_argument("unknown op type.");
+		case '+':		num2 += num1; break ;
+		case '-':		num2 -= num1; break ;
+		case '/':		if (!num1)
+						throw std::runtime_error("division by zero");
+					num2 /= num1; break ;
+		case '*':		num2 *= num1; break ;
+		default:		throw std::invalid_argument("unknown op type.");
 	}
 	m_stack.push(num2);
 }

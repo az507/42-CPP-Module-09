@@ -770,15 +770,15 @@ void	mergeInsertSort(std::list<int>& list, int level) {
 		remainder = list.size() % (level >> 1);
 		return ;
 	}
-//	std::cout << "level = " << level << ", before compareAndSwap:	";
-//	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
-//		std::cout << *it << ' ';
-//	} std::cout << std::endl;
+	std::cout << "level = " << level << ", before compareAndSwap:	";
+	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+		std::cout << *it << ' ';
+	} std::cout << std::endl;
 	compareAndSwap(list, level);
-//	std::cout << "after compareAndSwap:			";
-//	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
-//		std::cout << *it << ' ';
-//	} std::cout << '\n' << std::endl;
+	std::cout << "after compareAndSwap:			";
+	for (std::list<int>::const_iterator it = list.begin(); it != list.end(); ++it) {
+		std::cout << *it << ' ';
+	} std::cout << '\n' << std::endl;
 	mergeInsertSort(list, level << 1);
 	std::list<int>::iterator	it2;
 	std::ptrdiff_t			dist;
@@ -792,10 +792,10 @@ void	mergeInsertSort(std::list<int>& list, int level) {
 		std::advance(it2 = it1, level);
 		p_list.push_back(std::make_pair(it1, it2));
 	}
-//	std::cout << "main pairs list, level = " << level << std::endl;
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
-//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
-//	}
+	std::cout << "main pairs list, level = " << level << std::endl;
+	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+	}
 	std::pair<std::list<int>::iterator, std::list<int>::iterator>	tmp_pair;
 	bool								odd = false;
 	if (p_list.back().second == list.end()) {
@@ -803,18 +803,18 @@ void	mergeInsertSort(std::list<int>& list, int level) {
 		p_list.pop_back();
 		odd = true;
 	}
-//	std::cout << "removing odd nbr of elems, before transferring b1 to a1" << std::endl;
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
-//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
-//	}
+	std::cout << "removing odd nbr of elems, before transferring b1 to a1" << std::endl;
+	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+	}
 	p_list.push_back(std::make_pair(p_list.back().second, list.end()));
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator	z;
 	std::advance(z = p_list.end(), -2);
 	z->second = list.end();
-//	std::cout << "after transferring b1 to a1, before binary search insert" << std::endl;
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
-//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
-//	}
+	std::cout << "after transferring b1 to a1, before binary search insert" << std::endl;
+	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+	}
 	int	x = 0;
 	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator it = p_list.begin(); it != p_list.end(); ++it) {
 		if (it->second != list.end()) {
@@ -844,19 +844,19 @@ void	mergeInsertSort(std::list<int>& list, int level) {
 			}
 		}
 	}
-//	std::cout << "after main binary search insert" << std::endl;
-//	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
-//		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
-//	}
+	std::cout << "after main binary search insert" << std::endl;
+	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+		std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+	}
 	std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::iterator last_it;
 	if (odd) {
 		p_list.push_back(tmp_pair);
 		binarySearchInsert(p_list, p_list.begin(), --p_list.end(), --p_list.end(), list.end());
 		p_list.pop_back();
-//		std::cout << "after inserting last elem for odd nbr of pairs" << std::endl;
-//		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
-//			std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
-//		}
+		std::cout << "after inserting last elem for odd nbr of pairs" << std::endl;
+		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+			std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+		}
 	}
 	if (level == 1 && remainder) {
 		std::list<int>::iterator	it;
@@ -865,12 +865,12 @@ void	mergeInsertSort(std::list<int>& list, int level) {
 			binarySearchInsert(p_list, p_list.begin(), --p_list.end(), --p_list.end(), list.end());
 			p_list.pop_back();
 		}
-//		std::cout << "after binary search insert for remainder elems" << std::endl;
-//		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
-//			std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
-//		}
+		std::cout << "after binary search insert for remainder elems" << std::endl;
+		for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {
+			std::cout << '(' << *(it->first) << ", " << ((it->second == list.end()) ? -1 : *(it->second)) << ')' << std::endl;
+		}
 	}
-//	std::cout << std::endl;
+	std::cout << std::endl;
 	std::list<int>::iterator	p;
 	std::list<int>			tmp_list;
 	for (std::list<std::pair<std::list<int>::iterator, std::list<int>::iterator> >::const_iterator it = p_list.begin(); it != p_list.end(); ++it) {

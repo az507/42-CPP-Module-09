@@ -24,8 +24,8 @@ int	main(int argc, char *argv[])
 	std::stringstream	ss;
 	std::string		buffer;
 
-	if (argc == 1)
-		return 0;
+	if (argc != 2)
+		return (std::cerr << "Usage: " << argv[0] << " \"math expr\"\n", 1);
 
 	rpn = RPN::getInstance();
 	try {
