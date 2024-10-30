@@ -21,7 +21,6 @@ class	PmergeMe {
 		void		addNumber(int);
 		void		printNumbers(void) const;
 		void		printTimeTaken(void) const;
-//		void		printDetailedTime(void) const;
 		void		sort(void);
 		void		checkSorted(void) const;
 
@@ -30,15 +29,11 @@ class	PmergeMe {
 		~PmergeMe(void);
 		PmergeMe(const PmergeMe &);
 		PmergeMe& operator=(const PmergeMe&);
-//		void		generateJacobsthalSequence(void); // not needed
 
-//		std::vector<int>	jacobsthalSequence; // not needed
 		std::vector<int>	m_vector;
 		std::list<int>		m_list;
 		struct timespec		time[2];
 		long double		time_taken[2];
-//		long double		vtime_taken[2]; // [0]: data management, [1]: sorting part
-//		long double		ltime_taken[2];
 };
 
 #endif
